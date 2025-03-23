@@ -1,0 +1,2 @@
+User will have userName, email and password fields to be stored in the db
+Hash the password 
