@@ -6,9 +6,9 @@ import { checkPasswordStrength } from "../utils/others/checkPasswordStrength.js"
 // register user controller
 export const registerUser = async (req, res, next) => {
     try {
-        const { firstName, lastName, email, password } = req.body;
+        const { fullName, email, dob, phone, address, password } = req.body;
 
-        if (!firstName || !lastName || !email || !password) {
+        if (!fullName || !dob || !address || !email || !phone || !password) {
             return res
                 .status(401)
                 .json(new ApiError(401, "All fields are required"));
@@ -27,7 +27,9 @@ export const registerUser = async (req, res, next) => {
                 );
         }
 
-        const existedUser = await User.findOne({ email });
+        const existedUser = await User.findOne({
+            $or: [{ email }, { phone }],
+        });
 
         if (existedUser) {
             return res
@@ -38,9 +40,11 @@ export const registerUser = async (req, res, next) => {
         }
 
         const user = await User.create({
-            firstName,
-            lastName,
+            fullName,
             email,
+            phone,
+            dob,
+            address,
             password,
         });
 
