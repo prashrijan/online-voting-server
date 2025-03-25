@@ -33,10 +33,7 @@ export const registerUser = async (req, res, next) => {
             return res
                 .status(409)
                 .json(
-                    new ApiError(
-                        409,
-                        "User with this email or username already exists."
-                    )
+                    new ApiError(409, "User with this email already exists.")
                 );
         }
 
