@@ -1,36 +1,50 @@
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiError } from "../utils/customResponse/ApiError.js";
+import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
 import { User } from "../models/user.model.js";
+import { checkPasswordStrength } from "../utils/others/checkPasswordStrength.js";
 
 // register user controller
 export const registerUser = async (req, res, next) => {
     try {
-        const { userName, email, password } = req.body;
+        const { fullName, email, dob, phone, address, password } = req.body;
 
-        if (!userName || !email || !password) {
+        if (!fullName || !dob || !address || !email || !phone || !password) {
             return res
                 .status(401)
                 .json(new ApiError(401, "All fields are required"));
         }
 
+        const isPasswordStrong = checkPasswordStrength(password);
+
+        if (!isPasswordStrong) {
+            return res
+                .status(402)
+                .json(
+                    new ApiError(
+                        402,
+                        "Password must be strong: at least 6 characters, including one uppercase letter, one lowercase letter, one number, and one symbol."
+                    )
+                );
+        }
+
         const existedUser = await User.findOne({
-            $or: [{ email }, { userName }],
+            $or: [{ email }, { phone }],
         });
 
         if (existedUser) {
             return res
                 .status(409)
                 .json(
-                    new ApiError(
-                        409,
-                        "User with this email or username already exists."
-                    )
+                    new ApiError(409, "User with this email already exists.")
                 );
         }
 
         const user = await User.create({
-            userName,
+            fullName,
             email,
+            phone,
+            dob,
+            address,
             password,
         });
 
