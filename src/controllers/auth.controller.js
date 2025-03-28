@@ -60,3 +60,16 @@ export const registerUser = async (req, res, next) => {
         return next(new ApiError(500, "Server error registering user."));
     }
 };
+
+// login user controller
+export const loginUser = async (req, res, next) => {
+    try {
+        // get the email password
+        // check if the password is correct
+        // create session token and save it to the db
+        // log in the user
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(new ApiError(500, "Server error logging user in."));
+    }
+};

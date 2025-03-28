@@ -54,4 +54,7 @@ userScehma.methods.isPasswordCorrect = function (password) {
     return bcrypt.compare(password, this.password);
 };
 
+// generate access token
+// generate refresh token
+
 export const User = new mongoose.model("User", userScehma);
