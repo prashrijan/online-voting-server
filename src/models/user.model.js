@@ -12,7 +12,6 @@ const userScehma = new Schema(
         },
         address: {
             type: String,
-            required: true,
         },
         email: {
             type: String,
@@ -20,11 +19,10 @@ const userScehma = new Schema(
         },
         dob: {
             type: Date,
-            required: true,
         },
         password: {
             type: String,
-            required: true,
+            default: null,
         },
         status: {
             type: String,
@@ -40,13 +38,18 @@ const userScehma = new Schema(
             type: String,
             default: "",
         },
+        googleId: {
+            type: String,
+            unique: true,
+            sparse: true,
+        },
     },
     { timestamps: true }
 );
 
 // hash password before saving it to the database
 userScehma.pre("save", async function (next) {
-    if (!this.isModified("password")) return next();
+    if (!this.isModified("password") || this.password == null) return next();
     this.password = await bcrypt.hash(this.password, 10);
     next();
 });
