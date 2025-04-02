@@ -3,12 +3,28 @@ import cors from "cors";
 import authRoutes from "./src/routes/auth.routes.js";
 import { dbConnection } from "./src/db/dbConfig.js";
 import { rateLimit } from "express-rate-limit";
+import passport from "./src/google-auth-app/config/passportConfig.js";
+import session from "express-session";
+import { conf } from "./src/conf/conf.js";
 
 const app = express();
 const PORT = process.env.PORT;
 
 app.use(cors());
 app.use(express.json());
+
+app.use(
+    session({
+        secret: conf.sessionSecret,
+        resave: false,
+        saveUninitialized: false,
+        cookie: { secure: false },
+    })
+);
+
+// Initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // database connection
 dbConnection()

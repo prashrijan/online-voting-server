@@ -11,7 +11,7 @@ const sessionSchema = new Schema(
             default: () => new Date(Date.now() + 15 * 60 * 1000),
             index: { expires: 0 },
         },
-        assosciate: {
+        associate: {
             type: String,
             required: true,
         },
