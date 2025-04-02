@@ -32,15 +32,15 @@ export const registerUser = async (req, res, next) => {
 
         if (!fullName || !dob || !address || !email || !phone || !password) {
             return res
-                .status(401)
-                .json(new ApiError(401, "All fields are required"));
+                .status(400)
+                .json(new ApiError(400, "All fields are required"));
         }
 
         const isPasswordStrong = checkPasswordStrength(password);
 
         if (!isPasswordStrong) {
             return res
-                .status(402)
+                .status(422)
                 .json(
                     new ApiError(
                         402,
@@ -116,7 +116,7 @@ export const loginUser = async (req, res, next) => {
         // create session token and save it to the db
         const session = await Session.create({
             token: accessToken,
-            assosciate: user.email,
+            associate: user.email,
         });
 
         if (!session) {
@@ -137,5 +137,88 @@ export const loginUser = async (req, res, next) => {
     } catch (error) {
         console.error(`Internal Server Error : ${error}`);
         return next(new ApiError(500, "Server error logging user in."));
+    }
+};
+
+// google login controller
+export const googleAuthCallback = async (
+    accessToken,
+    refreshToken,
+    profile,
+    done
+) => {
+    try {
+        const { id, displayName, emails } = profile;
+        const email = emails[0].value;
+        const fullName = displayName;
+
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            user = await User.create({
+                fullName,
+                email,
+                dob: null,
+                password: null,
+                address: null,
+                status: "Active",
+                googleId: id,
+            });
+        }
+
+        // Ensure this user was created using Google (googleId is present)
+        if (!user.googleId) {
+            return done(null, false, {
+                message: "This email is already registered but not via Google",
+            });
+        }
+
+        return done(null, user);
+    } catch (error) {
+        console.error("Error in Google login callback:", error);
+        return done(error, null);
+    }
+};
+
+export const loginSuccess = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json(new ApiResponse("Not Authorized"));
+        }
+
+        const user = req.user;
+
+        const dbUser = await User.findOne({ email: user.email });
+
+        const { accessToken, refreshToken } =
+            await generateAccessAndRefreshToken(dbUser._id);
+
+        dbUser.refreshToken = refreshToken;
+
+        const session = await Session.create({
+            token: accessToken,
+            associate: dbUser.email,
+        });
+
+        if (!session) {
+            return res
+                .status(500)
+                .json(new ApiError(500, "Failed to create session token."));
+        }
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    { accessToken, refreshToken },
+                    "Login Successful"
+                )
+            );
+    } catch (error) {
+        console.error("Internal Server Error:", error);
+        return res
+            .status(500)
+            .json(new ApiError(500, "Server error during login success"));
     }
 };
