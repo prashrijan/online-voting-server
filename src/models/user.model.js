@@ -27,7 +27,7 @@ const userScehma = new Schema(
         status: {
             type: String,
             enum: ["Active", "Inactive"],
-            default: "Inactive",
+            default: "Active",
         },
         role: {
             type: String,
@@ -37,11 +37,6 @@ const userScehma = new Schema(
         refreshToken: {
             type: String,
             default: "",
-        },
-        googleId: {
-            type: String,
-            unique: true,
-            sparse: true,
         },
     },
     { timestamps: true }

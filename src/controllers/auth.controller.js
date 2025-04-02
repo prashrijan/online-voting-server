@@ -28,12 +28,35 @@ const generateAccessAndRefreshToken = async (userId) => {
 // register user controller
 export const registerUser = async (req, res, next) => {
     try {
-        const { fullName, email, dob, phone, address, password } = req.body;
+        const {
+            fullName,
+            email,
+            dob,
+            phone,
+            address,
+            password,
+            confirmPassword,
+        } = req.body;
+        console.log(req.body);
 
-        if (!fullName || !dob || !address || !email || !phone || !password) {
+        if (
+            !fullName ||
+            !dob ||
+            !address ||
+            !email ||
+            !phone ||
+            !password ||
+            !confirmPassword
+        ) {
             return res
                 .status(400)
                 .json(new ApiError(400, "All fields are required"));
+        }
+
+        if (confirmPassword !== password) {
+            return res
+                .status(400)
+                .json(new ApiError(400, "Passwords do not match"));
         }
 
         const isPasswordStrong = checkPasswordStrength(password);
@@ -148,7 +171,7 @@ export const googleAuthCallback = async (
     done
 ) => {
     try {
-        const { id, displayName, emails } = profile;
+        const { displayName, emails } = profile;
         const email = emails[0].value;
         const fullName = displayName;
 
@@ -162,16 +185,10 @@ export const googleAuthCallback = async (
                 password: null,
                 address: null,
                 status: "Active",
-                googleId: id,
             });
         }
 
         // Ensure this user was created using Google (googleId is present)
-        if (!user.googleId) {
-            return done(null, false, {
-                message: "This email is already registered but not via Google",
-            });
-        }
 
         return done(null, user);
     } catch (error) {
