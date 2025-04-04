@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { Session } from "../models/session.model.js";
 import { checkPasswordStrength } from "../utils/others/checkPasswordStrength.js";
+import { conf } from "../conf/conf.js";
 
 // generate access and refresh token
 const generateAccessAndRefreshToken = async (userId) => {
@@ -28,12 +29,34 @@ const generateAccessAndRefreshToken = async (userId) => {
 // register user controller
 export const registerUser = async (req, res, next) => {
     try {
-        const { fullName, email, dob, phone, address, password } = req.body;
+        const {
+            fullName,
+            email,
+            dob,
+            phone,
+            address,
+            password,
+            confirmPassword,
+        } = req.body;
 
-        if (!fullName || !dob || !address || !email || !phone || !password) {
+        if (
+            !fullName ||
+            !dob ||
+            !address ||
+            !email ||
+            !phone ||
+            !password ||
+            !confirmPassword
+        ) {
             return res
                 .status(400)
                 .json(new ApiError(400, "All fields are required"));
+        }
+
+        if (confirmPassword !== password) {
+            return res
+                .status(400)
+                .json(new ApiError(400, "Passwords do not match"));
         }
 
         const isPasswordStrong = checkPasswordStrength(password);
@@ -154,6 +177,16 @@ export const googleAuthCallback = async (
 
         let user = await User.findOne({ email });
 
+        // LOCAL ACCOUNT ALREADY EXISTS WITHOUT GMAIL
+        if (user && !user.googleId) {
+            console.log(
+                "User exists but has no Google ID. Triggering failure."
+            );
+            return done(null, false, {
+                message: "Email already registered. Use regular login.",
+            });
+        }
+
         if (!user) {
             user = await User.create({
                 fullName,
@@ -163,13 +196,6 @@ export const googleAuthCallback = async (
                 address: null,
                 status: "Active",
                 googleId: id,
-            });
-        }
-
-        // Ensure this user was created using Google (googleId is present)
-        if (!user.googleId) {
-            return done(null, false, {
-                message: "This email is already registered but not via Google",
             });
         }
 
@@ -206,15 +232,11 @@ export const loginSuccess = async (req, res) => {
                 .json(new ApiError(500, "Failed to create session token."));
         }
 
-        return res
-            .status(200)
-            .json(
-                new ApiResponse(
-                    200,
-                    { accessToken, refreshToken },
-                    "Login Successful"
-                )
-            );
+        const clientUrl = conf.clientUrl;
+
+        return res.redirect(
+            `${clientUrl}/google-auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
+        );
     } catch (error) {
         console.error("Internal Server Error:", error);
         return res
