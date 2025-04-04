@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { Session } from "../models/session.model.js";
 import { checkPasswordStrength } from "../utils/others/checkPasswordStrength.js";
+import { conf } from "../conf/conf.js";
 
 // generate access and refresh token
 const generateAccessAndRefreshToken = async (userId) => {
@@ -231,15 +232,11 @@ export const loginSuccess = async (req, res) => {
                 .json(new ApiError(500, "Failed to create session token."));
         }
 
-        return res
-            .status(200)
-            .json(
-                new ApiResponse(
-                    200,
-                    { accessToken, refreshToken },
-                    "Login Successful"
-                )
-            );
+        const clientUrl = conf.clientUrl;
+
+        return res.redirect(
+            `${clientUrl}/google-auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
+        );
     } catch (error) {
         console.error("Internal Server Error:", error);
         return res
