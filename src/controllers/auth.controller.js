@@ -178,8 +178,11 @@ export const googleAuthCallback = async (
 
         // LOCAL ACCOUNT ALREADY EXISTS WITHOUT GMAIL
         if (user && !user.googleId) {
+            console.log(
+                "User exists but has no Google ID. Triggering failure."
+            );
             return done(null, false, {
-                message: "Email already registered. Use regular login",
+                message: "Email already registered. Use regular login.",
             });
         }
 

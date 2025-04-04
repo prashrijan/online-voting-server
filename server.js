@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./src/routes/auth.routes.js";
+import userRoutes from "./src/routes/user.routes.js";
 import { dbConnection } from "./src/db/dbConfig.js";
 import { rateLimit } from "express-rate-limit";
 import passport from "./src/google-auth-app/config/passportConfig.js";
@@ -40,7 +41,7 @@ const limiter = rateLimit({
     message: "Too many requests from this IP. Please try again later",
 });
 
-app.use(limiter);
+// app.use(limiter);
 
 app.get("/", (req, res) => {
     res.send("An Online Voting System");
@@ -48,6 +49,9 @@ app.get("/", (req, res) => {
 
 // auth routes
 app.use("/api/v1/auth", authRoutes);
+
+// user routes
+app.use("/api/v1/user", userRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is ready on http://localhost:${PORT}`);

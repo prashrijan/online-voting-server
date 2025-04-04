@@ -5,6 +5,7 @@ import {
     registerUser,
 } from "../controllers/auth.controller.js";
 import passport from "../google-auth-app/config/passportConfig.js";
+import { ApiError } from "../utils/customResponse/ApiError.js";
 
 const router = express.Router();
 
@@ -17,11 +18,11 @@ router
     .get(passport.authenticate("google", { scope: ["profile", "email"] }));
 
 // google callback route
-router
-    .route("/google/callback")
-    .get(
-        passport.authenticate("google", { failureRedirect: "/" }),
-        loginSuccess
-    );
+router.route("/google/callback").get(
+    passport.authenticate("google", {
+        failureRedirect: "/",
+    }),
+    loginSuccess
+);
 
 export default router;
