@@ -16,6 +16,7 @@ const userScehma = new Schema(
         email: {
             type: String,
             required: true,
+            unique: true,
         },
         dob: {
             type: Date,
@@ -27,7 +28,7 @@ const userScehma = new Schema(
         status: {
             type: String,
             enum: ["Active", "Inactive"],
-            default: "Inactive",
+            default: "Active",
         },
         role: {
             type: String,
