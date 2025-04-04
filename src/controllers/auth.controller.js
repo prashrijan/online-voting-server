@@ -37,7 +37,6 @@ export const registerUser = async (req, res, next) => {
             password,
             confirmPassword,
         } = req.body;
-        console.log(req.body);
 
         if (
             !fullName ||
@@ -171,11 +170,18 @@ export const googleAuthCallback = async (
     done
 ) => {
     try {
-        const { displayName, emails } = profile;
+        const { id, displayName, emails } = profile;
         const email = emails[0].value;
         const fullName = displayName;
 
         let user = await User.findOne({ email });
+
+        // LOCAL ACCOUNT ALREADY EXISTS WITHOUT GMAIL
+        if (user && !user.googleId) {
+            return done(null, false, {
+                message: "Email already registered. Use regular login",
+            });
+        }
 
         if (!user) {
             user = await User.create({
@@ -185,10 +191,9 @@ export const googleAuthCallback = async (
                 password: null,
                 address: null,
                 status: "Active",
+                googleId: id,
             });
         }
-
-        // Ensure this user was created using Google (googleId is present)
 
         return done(null, user);
     } catch (error) {

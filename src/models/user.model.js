@@ -16,6 +16,7 @@ const userScehma = new Schema(
         email: {
             type: String,
             required: true,
+            unique: true,
         },
         dob: {
             type: Date,
@@ -37,6 +38,11 @@ const userScehma = new Schema(
         refreshToken: {
             type: String,
             default: "",
+        },
+        googleId: {
+            type: String,
+            unique: true,
+            sparse: true,
         },
     },
     { timestamps: true }
