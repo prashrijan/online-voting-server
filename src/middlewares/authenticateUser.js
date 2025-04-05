@@ -73,6 +73,20 @@ export const authenticateuser = async (req, res, next) => {
     }
 };
 
+/**
+ * Middleware to authenticate a user based on a provided refresh token.
+ * Validates the refresh token against the database and decodes it to retrieve user information.
+ * Ensures the refresh token matches the one stored for the user in the database.
+ * If authentication fails, an appropriate error response is sent.
+ *
+ * @async
+ * @function refreshAuthenticate
+ * @param {Object} req - Express request object, containing the refresh token in headers.
+ * @param {Object} res - Express response object, used to send error responses if authentication fails.
+ * @param {Function} next - Express next middleware function, called if authentication succeeds.
+ * @throws {ApiError} If the refresh token is missing, invalid, mismatched, or if the user is not found.
+ */
+
 export const refreshAuthenticate = async (req, res, next) => {
     try {
         const refreshToken = req.headers?.authorization;
@@ -112,6 +126,47 @@ export const refreshAuthenticate = async (req, res, next) => {
         console.error(`Internal Server Error : ${error}`);
         return next(
             new ApiError(500, "Server error authenticating the token.")
+        );
+    }
+};
+
+/**
+ * Middleware to verify if the authenticated user has admin privileges.
+ * Checks the user's role and allows access to the next middleware if the user is an admin.
+ * If the user is not an admin or not authenticated, an appropriate error response is sent.
+ *
+ * @async
+ * @function isAdmin
+ * @param {Object} req - Express request object, containing the authenticated user in `req.user`.
+ * @param {Object} res - Express response object, used to send error responses if authorization fails.
+ * @param {Function} next - Express next middleware function, called if the user has admin privileges.
+ * @throws {ApiError} If the user is not found, does not have admin privileges, or if a server error occurs.
+ */
+
+export const isAdmin = async (req, res) => {
+    try {
+        const user = req.user;
+
+        if (!user) {
+            return res.status(404).json(new ApiError(404, "User not found."));
+        }
+
+        if (user.role == "Admin") {
+            next();
+        } else {
+            return res
+                .status(403)
+                .json(
+                    new ApiError(
+                        403,
+                        "Access denied. Admin privileges required."
+                    )
+                );
+        }
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(
+            new ApiError(500, "Server error authenticating user as admin.")
         );
     }
 };
