@@ -246,3 +246,51 @@ export const loginSuccess = async (req, res) => {
             .json(new ApiError(500, "Server error during login success"));
     }
 };
+
+export const refreshToken = async (req, res) => {
+    try {
+        const user = req.user;
+
+        if (!user) {
+            return res
+                .status(401)
+                .json(new ApiError(401, "User not authenticated."));
+        }
+
+        const newAccessToken = await user.generateAccessToken();
+
+        if (!newAccessToken) {
+            return res
+                .status(500)
+                .json(
+                    new ApiError(500, "Failed to generate new access token.")
+                );
+        }
+
+        const session = await Session.create({
+            token: newAccessToken,
+            associate: user.email,
+        });
+
+        if (!session) {
+            return res
+                .status(500)
+                .json(new ApiError(500, "Failed to create session token."));
+        }
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    { accessToken: newAccessToken },
+                    "Access token refreshed successfully."
+                )
+            );
+    } catch (error) {
+        console.error("Internal Server Error:", error);
+        return res
+            .status(500)
+            .json(new ApiError(500, "Server error renewing access token."));
+    }
+};

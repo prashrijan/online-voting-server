@@ -2,10 +2,11 @@ import express from "express";
 import {
     loginSuccess,
     loginUser,
+    refreshToken,
     registerUser,
 } from "../controllers/auth.controller.js";
 import passport from "../google-auth-app/config/passportConfig.js";
-import { ApiError } from "../utils/customResponse/ApiError.js";
+import { refreshAuthenticate } from "../middlewares/authenticateUser.js";
 
 const router = express.Router();
 
@@ -24,5 +25,7 @@ router.route("/google/callback").get(
     }),
     loginSuccess
 );
+
+router.route("/refresh-token").get(refreshAuthenticate, refreshToken);
 
 export default router;
