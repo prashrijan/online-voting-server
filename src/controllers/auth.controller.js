@@ -235,7 +235,9 @@ export const loginSuccess = async (req, res) => {
         const clientUrl = conf.clientUrl;
 
         return res.redirect(
-            `${clientUrl}/google-auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
+            `${clientUrl}/google-auth-success?accessToken=${encodeURIComponent(
+                accessToken
+            )}&refreshToken=${encodeURIComponent(refreshToken)}`
         );
     } catch (error) {
         console.error("Internal Server Error:", error);
