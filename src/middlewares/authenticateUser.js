@@ -72,3 +72,46 @@ export const authenticateuser = async (req, res, next) => {
         return next(new ApiError(500, "Server error authenticating the user."));
     }
 };
+
+export const refreshAuthenticate = async (req, res, next) => {
+    try {
+        const refreshToken = req.headers?.authorization;
+
+        if (!refreshToken) {
+            return res
+                .status(404)
+                .json(new ApiError(404, "Refresh token is missing."));
+        }
+
+        const decoded = jwt.verify(refreshToken, conf.refreshSecret);
+
+        if (!decoded.email) {
+            return res
+                .status(401)
+                .json(
+                    new ApiError(
+                        401,
+                        "Invalid refresh token. Authentication failed."
+                    )
+                );
+        }
+
+        const user = await User.findOne({ email: decoded.email });
+
+        if (refreshToken !== user.refreshToken) {
+            return res
+                .status(403)
+                .json(
+                    new ApiError(403, "Refresh token mismatch. Access denied.")
+                );
+        }
+
+        req.user = user;
+        next();
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(
+            new ApiError(500, "Server error authenticating the token.")
+        );
+    }
+};
