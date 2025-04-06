@@ -170,3 +170,44 @@ export const isAdmin = async (req, res) => {
         );
     }
 };
+
+/**
+ * Middleware to verify if the authenticated user has candidate privileges.
+ * Checks the user's role and allows access to the next middleware if the user is a candidate.
+ * If the user is not a candidate or not authenticated, an appropriate error response is sent.
+ *
+ * @async
+ * @function isCandidate
+ * @param {Object} req - Express request object, containing the authenticated user in `req.user`.
+ * @param {Object} res - Express response object, used to send error responses if authorization fails.
+ * @param {Function} next - Express next middleware function, called if the user has candidate privileges.
+ * @throws {ApiError} If the user is not found, does not have candidate privileges, or if a server error occurs.
+ */
+
+export const isCandidate = async (req, res) => {
+    try {
+        const user = req.user;
+
+        if (!user) {
+            return res.status(404).json(new ApiError(404, "User not found."));
+        }
+
+        if (user.role == "Candidate") {
+            next();
+        } else {
+            return res
+                .status(403)
+                .json(
+                    new ApiError(
+                        403,
+                        "Access denied. Candidate privileges required."
+                    )
+                );
+        }
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(
+            new ApiError(500, "Server error authenticating user as admin.")
+        );
+    }
+};
