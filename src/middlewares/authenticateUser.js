@@ -143,7 +143,7 @@ export const refreshAuthenticate = async (req, res, next) => {
  * @throws {ApiError} If the user is not found, does not have admin privileges, or if a server error occurs.
  */
 
-export const isAdmin = async (req, res) => {
+export const isAdmin = async (req, res, next) => {
     try {
         const user = req.user;
 
@@ -184,7 +184,7 @@ export const isAdmin = async (req, res) => {
  * @throws {ApiError} If the user is not found, does not have candidate privileges, or if a server error occurs.
  */
 
-export const isCandidate = async (req, res) => {
+export const isCandidate = async (req, res, next) => {
     try {
         const user = req.user;
 
