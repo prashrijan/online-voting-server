@@ -2,11 +2,13 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./src/routes/auth.routes.js";
 import userRoutes from "./src/routes/user.routes.js";
+import electionRoutes from "./src/routes/election.route.js";
 import { dbConnection } from "./src/db/dbConfig.js";
 import { rateLimit } from "express-rate-limit";
 import passport from "./src/google-auth-app/config/passportConfig.js";
 import session from "express-session";
 import { conf } from "./src/conf/conf.js";
+import { startCronJobs } from "./src/jobs/cron.js";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -41,7 +43,10 @@ const limiter = rateLimit({
     message: "Too many requests from this IP. Please try again later",
 });
 
-// app.use(limiter);
+app.use(limiter);
+
+// Start cron jobs
+startCronJobs();
 
 app.get("/", (req, res) => {
     res.send("An Online Voting System");
@@ -52,6 +57,9 @@ app.use("/api/v1/auth", authRoutes);
 
 // user routes
 app.use("/api/v1/user", userRoutes);
+
+// election routes
+app.use("/api/v1/election", electionRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is ready on http://localhost:${PORT}`);
