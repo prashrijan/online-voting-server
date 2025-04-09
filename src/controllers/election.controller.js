@@ -64,6 +64,31 @@ export const getElections = async (req, res, next) => {
 export const getElection = async (req, res, next) => {
     try {
         const id = req.params.id;
+
+        if (!id) {
+            return res
+                .status(400)
+                .json(
+                    new ApiError(
+                        400,
+                        "Id is required for fetching the election data."
+                    )
+                );
+        }
+
+        const election = await Election.findById(id);
+
+        if (!election) {
+            return res
+                .status(404)
+                .json(new ApiError(404, "Election not found."));
+        }
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, election, "Election found successfully.")
+            );
     } catch (error) {
         console.error(`Internal Server Error : ${error}`);
         return next(new ApiError(500, "Server error getting election."));
