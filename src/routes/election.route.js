@@ -5,6 +5,7 @@ import {
     getElections,
     getElection,
     deleteElection,
+    addCandidateToElection,
 } from "../controllers/election.controller.js";
 import { electionValidatior } from "../middlewares/validation/election/election.validate.js";
 
@@ -22,5 +23,9 @@ router
     .post(authenticateuser, isAdmin, electionValidatior, createElection);
 
 router.route("/delete/:id").delete(authenticateuser, isAdmin, deleteElection);
+
+router
+    .route("/:id/add-candidate")
+    .post(authenticateuser, isAdmin, addCandidateToElection);
 
 export default router;
