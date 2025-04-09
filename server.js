@@ -43,7 +43,7 @@ const limiter = rateLimit({
     message: "Too many requests from this IP. Please try again later",
 });
 
-app.use(limiter);
+// app.use(limiter);
 
 // Start cron jobs
 startCronJobs();
