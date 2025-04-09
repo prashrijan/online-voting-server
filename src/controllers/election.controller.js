@@ -60,3 +60,12 @@ export const getElections = async (req, res, next) => {
         return next(new ApiError(500, "Server error getting elections."));
     }
 };
+
+export const getElection = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(new ApiError(500, "Server error getting election."));
+    }
+};
