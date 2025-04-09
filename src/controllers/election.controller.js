@@ -2,6 +2,7 @@ import { ApiError } from "../utils/customResponse/ApiError.js";
 import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
 import { Election } from "../models/election.model.js";
 
+// create election controller
 export const createElection = async (req, res, next) => {
     try {
         const { title, startDate, endDate, candidate } = req.body;
@@ -40,6 +41,7 @@ export const createElection = async (req, res, next) => {
     }
 };
 
+// get all elections controller
 export const getElections = async (req, res, next) => {
     try {
         const election = await Election.find();
@@ -61,6 +63,7 @@ export const getElections = async (req, res, next) => {
     }
 };
 
+// get a single election controller by id
 export const getElection = async (req, res, next) => {
     try {
         const id = req.params.id;
@@ -95,6 +98,7 @@ export const getElection = async (req, res, next) => {
     }
 };
 
+// delete election by id
 export const deleteElection = async (req, res, next) => {
     try {
         const id = req.params.id;
@@ -126,5 +130,58 @@ export const deleteElection = async (req, res, next) => {
     } catch (error) {
         console.error(`Internal Server Error : ${error}`);
         return next(new ApiError(500, "Server error updating election."));
+    }
+};
+
+// add candidate
+export const addCandidateToElection = async (req, res, next) => {
+    try {
+        const electionId = req.params.id;
+        const { candidateId } = req.body;
+
+        // check if the request body is an array or a single candidate
+        const candidatesToAdd = Array.isArray(candidateId)
+            ? candidateId
+            : [candidateId];
+
+        const election = await Election.findById(electionId);
+        if (!election) {
+            return res
+                .status(404)
+                .json(new ApiError(404, "Election not found."));
+        }
+
+        const existingCandidates = election.candidates.map((candidate) =>
+            candidate.toString()
+        );
+
+        const newCandidates = candidatesToAdd.filter(
+            (candidateToAdd) => !existingCandidates.includes(candidateToAdd)
+        );
+
+        if (newCandidates.length === 0) {
+            return res
+                .status(400)
+                .json(
+                    new ApiError(
+                        400,
+                        "Candidates already added to this election."
+                    )
+                );
+        }
+
+        election.candidates.push(...newCandidates);
+        await election.save();
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, election, "Candidates added successfully.")
+            );
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(
+            new ApiError(500, "Server error adding candidate to  election.")
+        );
     }
 };
