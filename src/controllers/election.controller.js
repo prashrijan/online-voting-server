@@ -133,7 +133,7 @@ export const deleteElection = async (req, res, next) => {
     }
 };
 
-// add candidate
+// add candidate/s
 export const addCandidateToElection = async (req, res, next) => {
     try {
         const electionId = req.params.id;
@@ -183,5 +183,66 @@ export const addCandidateToElection = async (req, res, next) => {
         return next(
             new ApiError(500, "Server error adding candidate to  election.")
         );
+    }
+};
+
+// delete candidate/s
+export const deleteCandidateFromElection = async (req, res, next) => {
+    try {
+        const electionId = req.params.id;
+        const { candidateId } = req.body;
+
+        const candidatesToDelete = Array.isArray(candidateId)
+            ? candidateId
+            : [candidateId];
+
+        const election = await Election.findById(electionId);
+        if (!election)
+            return res
+                .status(404)
+                .json(new ApiError(404, "Election not found."));
+
+        const existingCandidates = election.candidates.map((candidate) =>
+            candidate.toString()
+        );
+
+        const deletedCandidate = candidatesToDelete.filter(
+            (candidateToDelete) =>
+                existingCandidates.includes(candidateToDelete)
+        );
+
+        console.log(deletedCandidate);
+
+        if (deletedCandidate.length === 0) {
+            return res
+                .status(400)
+                .json(
+                    new ApiError(
+                        400,
+                        "Candidate doesnot exist in this election"
+                    )
+                );
+        }
+
+        election.candidates = election.candidates.filter(
+            (candidate) => !deletedCandidate.includes(candidate.toString())
+        );
+
+        console.log(election.candidates);
+
+        await election.save();
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    election,
+                    "Candidate(s) removed successfully."
+                )
+            );
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(new ApiError(500, "Server error deleting election."));
     }
 };
