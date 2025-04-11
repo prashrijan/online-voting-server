@@ -5,9 +5,17 @@ import { Election } from "../models/election.model.js";
 // create election controller
 export const createElection = async (req, res, next) => {
     try {
-        const { title, startDate, endDate, candidate } = req.body;
+        const { title, startDate, endDate, candidate, startTime, endTime } =
+            req.body;
 
-        if (!title || !startDate || !endDate || !candidate) {
+        if (
+            !title ||
+            !startDate ||
+            !endDate ||
+            !candidate ||
+            !startTime ||
+            !endTime
+        ) {
             return res
                 .status(400)
                 .json(new ApiError(400, "All fields are required"));
@@ -15,16 +23,18 @@ export const createElection = async (req, res, next) => {
 
         const candidates = Array.isArray(candidate) ? candidate : [candidate];
 
-        if (new Date(startDate) >= new Date(endDate)) {
+        if (new Date(startTime) >= new Date(endTime)) {
             return res
                 .status(400)
-                .json(new ApiError(400, "Start date must be before end date."));
+                .json(new ApiError(400, "Start time must be before end time."));
         }
 
         const election = await Election.create({
             title,
             startDate,
             endDate,
+            startTime,
+            endTime,
             candidates,
             createdBy: req.user?._id,
         });
