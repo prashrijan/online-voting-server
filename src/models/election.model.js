@@ -14,6 +14,14 @@ const electionSchema = new Schema(
             type: Date,
             required: true,
         },
+        startTime: {
+            type: String,
+            required: true,
+        },
+        endTime: {
+            type: String,
+            required: true,
+        },
         status: {
             type: String,
             enum: ["pending", "active", "finished", "closed"],
