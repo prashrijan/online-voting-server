@@ -256,3 +256,45 @@ export const deleteCandidateFromElection = async (req, res, next) => {
         return next(new ApiError(500, "Server error deleting election."));
     }
 };
+
+// update election
+export const updateElection = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+
+        if (!id) return res.status(400).json(new ApiError("Id is required."));
+        const updates = req.body;
+
+        if (Object.keys(updates).length === 0)
+            return res
+                .status(400)
+                .json(new ApiError(400, "Please enter an update to continue."));
+
+        if ("candidates" in updates) {
+            return res
+                .status(400)
+                .json(
+                    new ApiError(400, "Candidates must be updated separately.")
+                );
+        }
+
+        const election = await Election.findByIdAndUpdate(id, updates, {
+            new: true,
+        });
+
+        if (!election) {
+            return res
+                .status(404)
+                .json(new ApiError(404, "Election not found."));
+        }
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, election, "Election updated successfully.")
+            );
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(new ApiError(500, "Server error updating election."));
+    }
+};
