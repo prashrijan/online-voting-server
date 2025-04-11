@@ -11,7 +11,7 @@
  *
  * @throws {TypeError} Throws an error if the input strings are not in the expected format.
  */
-const combineDateTime = (date, time) => {
+export const combineDateTime = (date, time) => {
     if (!date || !time) return;
     const [timeStr, meredim] = time.trim().toUpperCase().split(" ");
     let [hour, minute] = timeStr.split(":");

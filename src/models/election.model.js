@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { combineDateTime } from "../utils/others/combineDateTime.js";
 
 const electionSchema = new Schema(
     {
@@ -43,7 +44,8 @@ const electionSchema = new Schema(
 
 // method to mark the election as active if the startDate has passed
 electionSchema.methods.startElection = function () {
-    if (this.startDate <= new Date()) {
+    const startDate = combineDateTime(this.startDate, this.startTime);
+    if (startDate <= new Date()) {
         this.status = "active";
         return this.save();
     } else {
@@ -53,7 +55,8 @@ electionSchema.methods.startElection = function () {
 
 // method to mark the election as finished after endDate
 electionSchema.methods.endElection = function () {
-    if (this.endDate <= new Date()) {
+    const endDate = combineDateTime(this.endDate, this.endTime);
+    if (endDate <= new Date()) {
         this.status = "finished";
         return this.save();
     } else {
@@ -78,7 +81,9 @@ electionSchema.statics.updateElectionStatus = async function () {
     const pendingElections = await this.find({ status: "pending" });
 
     for (const election of pendingElections) {
-        if (now >= election.startDate) {
+        const start = combineDateTime(election.startDate, election.startTime);
+
+        if (now >= start) {
             election.status = "active";
             await election.save();
         }
@@ -87,7 +92,8 @@ electionSchema.statics.updateElectionStatus = async function () {
     const activeElections = await this.find({ status: "active" });
 
     for (const election of activeElections) {
-        if (now >= election.endDate) {
+        const end = combineDateTime(election.endDate, election.endTime);
+        if (now >= end) {
             election.status = "finished";
             await election.save();
         }
