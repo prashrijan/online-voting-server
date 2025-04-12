@@ -1,6 +1,7 @@
 import { ApiError } from "../utils/customResponse/ApiError.js";
 import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
 import { Election } from "../models/election.model.js";
+import { generateChunaabCode } from "../utils/others/generateChuaabCode.js";
 
 // create election controller
 export const createElection = async (req, res, next) => {
@@ -37,6 +38,7 @@ export const createElection = async (req, res, next) => {
             endTime,
             candidates,
             createdBy: req.user?._id,
+            chunaabCode: generateChunaabCode(),
         });
         await election.save();
 
@@ -74,7 +76,7 @@ export const getElections = async (req, res, next) => {
 };
 
 // get a single election controller by id
-export const getElection = async (req, res, next) => {
+export const getElectionById = async (req, res, next) => {
     try {
         const id = req.params.id;
 
@@ -296,5 +298,38 @@ export const updateElection = async (req, res, next) => {
     } catch (error) {
         console.error(`Internal Server Error : ${error}`);
         return next(new ApiError(500, "Server error updating election."));
+    }
+};
+
+export const getElectionByCode = async (req, res, next) => {
+    try {
+        const chunaabCode = req.params.code;
+
+        console.log(req.params);
+
+        if (!chunaabCode) {
+            return res
+                .status(400)
+                .json(new ApiError(400, "Please enter the code to continue."));
+        }
+
+        const election = await Election.findOne({ chunaabCode });
+
+        if (!election) {
+            return res
+                .status(404)
+                .json(new ApiError(404, "No election found."));
+        }
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, election, "Election found successfully.")
+            );
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(
+            new ApiError(500, "Server error getting election by code.")
+        );
     }
 };
