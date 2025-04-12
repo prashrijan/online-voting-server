@@ -38,6 +38,9 @@ const electionSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: "User",
         },
+        chunaabCode: {
+            type: String,
+        },
     },
     { timestamps: true }
 );

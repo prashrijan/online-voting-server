@@ -3,11 +3,12 @@ import { authenticateuser, isAdmin } from "../middlewares/authenticateUser.js";
 import {
     createElection,
     getElections,
-    getElection,
+    getElectionById,
     deleteElection,
     addCandidateToElection,
     deleteCandidateFromElection,
     updateElection,
+    getElectionByCode,
 } from "../controllers/election.controller.js";
 import { electionValidatior } from "../middlewares/validation/election/election.validate.js";
 import { limitElectionCreation } from "../middlewares/election.middleware.js";
@@ -17,7 +18,9 @@ const router = express.Router();
 // public routes
 router.route("/").get(getElections);
 
-router.route("/:id").get(getElection);
+router.route("/id/:id").get(getElectionById);
+
+router.route("/code/:code").get(getElectionByCode);
 
 // private route (only admin)
 // create election
