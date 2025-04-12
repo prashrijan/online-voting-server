@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/customResponse/ApiError.js";
 import jwt from "jsonwebtoken";
 import { conf } from "../conf/conf.js";
+import { Election } from "../models/election.model.js";
 
 /**
  * Middleware to authenticate a user based on a provided JWT token.
@@ -146,12 +147,20 @@ export const refreshAuthenticate = async (req, res, next) => {
 export const isAdmin = async (req, res, next) => {
     try {
         const user = req.user;
+        const electionId = req.params.id;
 
         if (!user) {
             return res.status(404).json(new ApiError(404, "User not found."));
         }
 
-        if (user.role == "Admin") {
+        const election = await Election.findById(electionId);
+
+        if (!election)
+            return res
+                .status(404)
+                .json(new ApiError(404, "Election not found."));
+
+        if (String(election.createdBy) === String(user._id)) {
             next();
         } else {
             return res
