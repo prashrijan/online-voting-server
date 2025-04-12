@@ -10,6 +10,7 @@ import {
     updateElection,
 } from "../controllers/election.controller.js";
 import { electionValidatior } from "../middlewares/validation/election/election.validate.js";
+import { limitElectionCreation } from "../middlewares/election.middleware.js";
 
 const router = express.Router();
 
@@ -20,7 +21,14 @@ router.route("/:id").get(getElection);
 
 // private route (only admin)
 // create election
-router.route("/").post(authenticateuser, electionValidatior, createElection);
+router
+    .route("/")
+    .post(
+        authenticateuser,
+        limitElectionCreation,
+        electionValidatior,
+        createElection
+    );
 
 router.route("/delete/:id").delete(authenticateuser, isAdmin, deleteElection);
 
