@@ -10,30 +10,29 @@ const userScehma = new Schema(
             type: String,
             required: true,
         },
-        address: {
-            type: String,
-        },
         email: {
             type: String,
             required: true,
             unique: true,
         },
-        dob: {
-            type: Date,
-        },
         password: {
             type: String,
             default: null,
         },
-        status: {
-            type: String,
-            enum: ["Active", "Inactive"],
-            default: "Active",
-        },
         role: {
             type: String,
-            enum: ["Admin", "User"],
+            enum: ["Admin", "User", "Candidate"],
             default: "User",
+        },
+        electionsParticipated: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Election",
+            },
+        ],
+        slogan: {
+            type: String,
+            default: "",
         },
         refreshToken: {
             type: String,
