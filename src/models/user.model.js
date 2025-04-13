@@ -86,4 +86,18 @@ userScehma.methods.generateRefreshToken = function () {
     );
 };
 
+// add elections participated to
+userScehma.methods.addElection = function (electionId) {
+    if (this.electionsParticipated.includes(electionId)) return;
+    this.electionsParticipated.push(electionId);
+};
+
+// update role
+userScehma.methods.updateRole = function (adminId) {
+    if (String(this._id) == String(adminId)) {
+        this.role = "Admin";
+    } else {
+        this.role = "Candidate";
+    }
+};
 export const User = new mongoose.model("User", userScehma);
