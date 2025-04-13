@@ -2,12 +2,15 @@ import { ApiError } from "../utils/customResponse/ApiError.js";
 import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
 import { Election } from "../models/election.model.js";
 import { generateChunaabCode } from "../utils/others/generateChuaabCode.js";
+import { User } from "../models/user.model.js";
 
 // create election controller
 export const createElection = async (req, res, next) => {
     try {
         const { title, startDate, endDate, candidate, startTime, endTime } =
             req.body;
+
+        const userId = req.user._id;
 
         if (
             !title ||
@@ -41,6 +44,18 @@ export const createElection = async (req, res, next) => {
             chunaabCode: generateChunaabCode(),
         });
         await election.save();
+
+        const users = await Promise.all(
+            candidates.map(async (candidateId) => {
+                return await User.findById(candidateId);
+            })
+        );
+
+        users.map(async (user) => {
+            user.addElection(election._id);
+            user.updateRole(userId);
+            await user.save();
+        });
 
         return res.status(201).json({
             success: true,
