@@ -109,7 +109,6 @@ export const getElectionResults = async (req, res, next) => {
                 $project: {
                     _id: 0,
                     candidateId: "$_id",
-                    name: "$candidate.fullName",
                     voteCount: 1,
                     percentage: {
                         $round: [
