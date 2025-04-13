@@ -30,8 +30,14 @@ const electionSchema = new Schema(
         },
         candidates: [
             {
-                type: Schema.Types.ObjectId,
-                ref: "User",
+                user: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User",
+                },
+                slogan: {
+                    type: String,
+                    default: "",
+                },
             },
         ],
         createdBy: {
