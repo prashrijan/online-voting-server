@@ -5,7 +5,9 @@ import {
     fetchUser,
     getPendingStatusSloganRequests,
     requestSloganUpdate,
+    updateProfile,
 } from "../controllers/user.controller.js";
+import { upload } from "../middlewares/multerUpload.js";
 
 const router = express.Router();
 
@@ -18,5 +20,9 @@ router
 router
     .route("/get-pending-slogan-requests")
     .get(authenticateuser, isAdmin, getPendingStatusSloganRequests);
+
+router
+    .route("/update-profile")
+    .put(authenticateuser, upload.single("profileImage"), updateProfile);
 
 export default router;

@@ -51,6 +51,10 @@ const userScehma = new Schema(
             unique: true,
             sparse: true,
         },
+        profileImage: {
+            type: String,
+            default: "",
+        },
     },
     { timestamps: true }
 );

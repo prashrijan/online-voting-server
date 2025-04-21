@@ -1,4 +1,5 @@
 import { User } from "../models/user.model.js";
+
 import { ApiError } from "../utils/customResponse/ApiError.js";
 import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
 
@@ -113,5 +114,46 @@ export const getPendingStatusSloganRequests = async (req, res, next) => {
     } catch (error) {
         console.error(`Internal Server Error : ${error}`);
         return next(new ApiError(500, "Server error getting pending status."));
+    }
+};
+
+export const updateProfile = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+
+        const { fullName } = req.body;
+
+        const updates = {};
+
+        if (fullName) updates.fullName = fullName;
+
+        if (req.file) {
+            updates.profileImage = req.file.path;
+        }
+
+        const updateUser = await User.findByIdAndUpdate(userId, updates, {
+            new: true,
+        });
+
+        if (!updateUser) {
+            return res
+                .status(400)
+                .json(new ApiError(400, "Error updating the profile."));
+        }
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    updateUser,
+                    "Profile Updated Successfully."
+                )
+            );
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(
+            new ApiError(500, "Server error updating profile picture.")
+        );
     }
 };
