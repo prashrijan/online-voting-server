@@ -4,6 +4,7 @@ import {
     loginUser,
     refreshToken,
     registerUser,
+    verifyEmail,
 } from "../controllers/auth.controller.js";
 import passport from "../google-auth-app/config/passportConfig.js";
 import { refreshAuthenticate } from "../middlewares/authenticateUser.js";
@@ -12,6 +13,7 @@ const router = express.Router();
 
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
+router.route("/verify-email").get(verifyEmail);
 
 // route to start google login
 router
