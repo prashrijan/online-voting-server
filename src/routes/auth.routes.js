@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
-router.route("/verify-email").get(verifyEmail);
+router.route("/verify-email").post(verifyEmail);
 
 // route to start google login
 router
