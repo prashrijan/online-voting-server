@@ -97,8 +97,10 @@ export const registerUser = async (req, res, next) => {
 
 // verify email
 export const verifyEmail = async (req, res, next) => {
+    console.log(req.body, req.query);
     try {
-        const token = req.query.token;
+        const { token } = req.body;
+        console.log(token);
         if (!token)
             return res.status(400).json(new ApiError(400, "Token missing."));
 
@@ -154,6 +156,17 @@ export const loginUser = async (req, res, next) => {
             return res
                 .status(404)
                 .json(new ApiError(404, "User with this email doesnot exist."));
+        }
+
+        if (!user.isVerified) {
+            return res
+                .status(400)
+                .json(
+                    new ApiError(
+                        400,
+                        "Please verify your email before logging in."
+                    )
+                );
         }
 
         const isPasswordCorrect = await user.isPasswordCorrect(password);
