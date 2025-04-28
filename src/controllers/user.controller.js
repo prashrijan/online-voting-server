@@ -2,6 +2,7 @@ import { User } from "../models/user.model.js";
 
 import { ApiError } from "../utils/customResponse/ApiError.js";
 import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
+import { uploadToCloudinary } from "../utils/cloudinary/uploadToCloudinary.js";
 
 export const fetchUser = async (req, res, next) => {
     try {
@@ -128,7 +129,11 @@ export const updateProfile = async (req, res, next) => {
         if (fullName) updates.fullName = fullName;
 
         if (req.file) {
-            updates.profileImage = req.file.path;
+            const imageUrl = await uploadToCloudinary(
+                req.file.path,
+                "chunaab/users-profile"
+            );
+            updates.profileImage = imageUrl;
         }
 
         const updateUser = await User.findByIdAndUpdate(userId, updates, {

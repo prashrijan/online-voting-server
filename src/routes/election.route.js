@@ -12,6 +12,7 @@ import {
 } from "../controllers/election.controller.js";
 import { electionValidatior } from "../middlewares/validation/election/election.validate.js";
 import { limitElectionCreation } from "../middlewares/election.middleware.js";
+import { upload } from "../middlewares/multerUpload.js";
 
 const router = express.Router();
 
@@ -29,6 +30,7 @@ router
     .post(
         authenticateuser,
         limitElectionCreation,
+        upload.single("coverImage"),
         electionValidatior,
         createElection
     );

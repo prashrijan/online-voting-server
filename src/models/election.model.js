@@ -41,6 +41,9 @@ const electionSchema = new Schema(
         chunaabCode: {
             type: String,
         },
+        coverImage: {
+            type: String,
+        },
     },
     { timestamps: true }
 );

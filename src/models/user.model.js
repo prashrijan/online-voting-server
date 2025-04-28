@@ -107,7 +107,6 @@ userScehma.methods.addElection = function (electionId) {
     const alreadyParticipated = this.electionsParticipated.some((election) => {
         return election.electionId?.toString() == electionId.toString();
     });
-
     if (alreadyParticipated) return;
 
     this.electionsParticipated.push({
@@ -125,6 +124,7 @@ userScehma.methods.updateRole = function (electionId, adminId) {
 
     if (!electionEntry) {
         throw new Error("User has not paritcipated in this election");
+        return;
     }
 
     if (String(this._id) == String(adminId)) {
@@ -142,6 +142,7 @@ userScehma.methods.requestSlogan = function (electionId, slogan) {
 
     if (!electionEntry) {
         throw new Error("User has not paritcipated in this election");
+        return;
     }
 
     electionEntry.slogan = slogan;
