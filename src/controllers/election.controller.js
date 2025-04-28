@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
 import { Election } from "../models/election.model.js";
 import { generateChunaabCode } from "../utils/others/generateChuaabCode.js";
 import { User } from "../models/user.model.js";
+import { uploadToCloudinary } from "../utils/cloudinary/uploadToCloudinary.js";
 
 // create election controller
 export const createElection = async (req, res, next) => {
@@ -27,6 +28,17 @@ export const createElection = async (req, res, next) => {
 
         const candidates = Array.isArray(candidate) ? candidate : [candidate];
 
+        let coverImageUrl;
+        if (req.file) {
+            coverImageUrl = await uploadToCloudinary(
+                req.file.path,
+                "chunaab/election-covers"
+            );
+        } else {
+            coverImageUrl =
+                "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+        }
+
         if (new Date(startTime) >= new Date(endTime)) {
             return res
                 .status(400)
@@ -40,6 +52,7 @@ export const createElection = async (req, res, next) => {
             startTime,
             endTime,
             candidates,
+            coverImage: coverImageUrl,
             createdBy: req.user?._id,
             chunaabCode: generateChunaabCode(),
         });
@@ -53,7 +66,7 @@ export const createElection = async (req, res, next) => {
 
         users.map(async (user) => {
             user.addElection(election._id);
-            user.updateRole(userId);
+            user.updateRole(election._id, userId);
             await user.save();
         });
 
@@ -316,6 +329,7 @@ export const updateElection = async (req, res, next) => {
     }
 };
 
+// get chunaab code
 export const getElectionByCode = async (req, res, next) => {
     try {
         const chunaabCode = req.params.code;
