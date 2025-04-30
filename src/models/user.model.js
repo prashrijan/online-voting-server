@@ -10,31 +10,38 @@ const userScehma = new Schema(
             type: String,
             required: true,
         },
-        address: {
-            type: String,
-        },
         email: {
             type: String,
             required: true,
             unique: true,
         },
-        dob: {
-            type: Date,
-        },
         password: {
             type: String,
             default: null,
         },
-        status: {
-            type: String,
-            enum: ["Active", "Inactive"],
-            default: "Active",
-        },
-        role: {
-            type: String,
-            enum: ["Admin", "User"],
-            default: "User",
-        },
+
+        electionsParticipated: [
+            {
+                electionId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "Election",
+                },
+                slogan: {
+                    type: String,
+                    default: "",
+                },
+                sloganStatus: {
+                    type: String,
+                    enum: ["Pending", "Approved", "Rejected"],
+                },
+                role: {
+                    type: String,
+                    enum: ["Admin", "User", "Candidate"],
+                    default: "User",
+                },
+            },
+        ],
+
         refreshToken: {
             type: String,
             default: "",
@@ -43,6 +50,14 @@ const userScehma = new Schema(
             type: String,
             unique: true,
             sparse: true,
+        },
+        profileImage: {
+            type: String,
+            default: "",
+        },
+        isVerified: {
+            type: Boolean,
+            default: false,
         },
     },
     { timestamps: true }
@@ -87,4 +102,67 @@ userScehma.methods.generateRefreshToken = function () {
     );
 };
 
+// add elections participated to
+userScehma.methods.addElection = function (electionId) {
+    const alreadyParticipated = this.electionsParticipated.some((election) => {
+        return election.electionId?.toString() == electionId.toString();
+    });
+    if (alreadyParticipated) return;
+
+    this.electionsParticipated.push({
+        electionId,
+        slogan: "",
+        sloganStatus: "Pending",
+    });
+};
+
+// update role
+userScehma.methods.updateRole = function (electionId, adminId) {
+    const electionEntry = this.electionsParticipated.find((election) => {
+        return election.electionId?.toString() == electionId.toString();
+    });
+
+    if (!electionEntry) {
+        throw new Error("User has not paritcipated in this election");
+        return;
+    }
+
+    if (String(this._id) == String(adminId)) {
+        electionEntry.role = "Admin";
+    } else {
+        electionEntry.role = "Candidate";
+    }
+};
+
+// users applies for slogan
+userScehma.methods.requestSlogan = function (electionId, slogan) {
+    const electionEntry = this.electionsParticipated.find((election) => {
+        return election.electionId?.toString() == electionId.toString();
+    });
+
+    if (!electionEntry) {
+        throw new Error("User has not paritcipated in this election");
+        return;
+    }
+
+    electionEntry.slogan = slogan;
+    electionEntry.sloganStatus = "Pending";
+};
+
+// admin approves or rejects a slogan
+userScehma.methods.updateSloganStatus = function (electionId, status) {
+    const electionEntry = this.electionsParticipated.find(
+        (e) => e.electionId?.toString() === electionId.toString()
+    );
+
+    if (!electionEntry) {
+        throw new Error("Election not found in user's participation.");
+    }
+
+    if (!["Approved", "Rejected"].includes(status)) {
+        throw new Error("Invalid status. Must be 'Approved' or 'Rejected'.");
+    }
+
+    electionEntry.sloganStatus = status;
+};
 export const User = new mongoose.model("User", userScehma);
