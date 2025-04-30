@@ -4,6 +4,8 @@ import { User } from "../models/user.model.js";
 import { Session } from "../models/session.model.js";
 import { checkPasswordStrength } from "../utils/others/checkPasswordStrength.js";
 import { conf } from "../conf/conf.js";
+import { sendVerificationEmail } from "../utils/nodemailer/sendVerificationEmail.js";
+import jwt from "jsonwebtoken";
 
 // generate access and refresh token
 const generateAccessAndRefreshToken = async (userId) => {
@@ -29,25 +31,9 @@ const generateAccessAndRefreshToken = async (userId) => {
 // register user controller
 export const registerUser = async (req, res, next) => {
     try {
-        const {
-            fullName,
-            email,
-            dob,
-            phone,
-            address,
-            password,
-            confirmPassword,
-        } = req.body;
+        const { fullName, email, password, confirmPassword } = req.body;
 
-        if (
-            !fullName ||
-            !dob ||
-            !address ||
-            !email ||
-            !phone ||
-            !password ||
-            !confirmPassword
-        ) {
+        if (!fullName || !email || !password || !confirmPassword) {
             return res
                 .status(400)
                 .json(new ApiError(400, "All fields are required"));
@@ -73,7 +59,7 @@ export const registerUser = async (req, res, next) => {
         }
 
         const existedUser = await User.findOne({
-            $or: [{ email }, { phone }],
+            email,
         });
 
         if (existedUser) {
@@ -87,22 +73,67 @@ export const registerUser = async (req, res, next) => {
         const user = await User.create({
             fullName,
             email,
-            phone,
-            dob,
-            address,
             password,
         });
+
+        await sendVerificationEmail(user);
 
         const createdUser = await User.findById(user._id).select("-password");
 
         return res
             .status(201)
             .json(
-                new ApiResponse(201, createdUser, "User successfully created.")
+                new ApiResponse(
+                    201,
+                    createdUser,
+                    "User registered successfully. Please verify your email."
+                )
             );
     } catch (error) {
         console.error(`Internal Server Error : ${error}`);
         return next(new ApiError(500, "Server error registering user."));
+    }
+};
+
+// verify email
+export const verifyEmail = async (req, res, next) => {
+    console.log(req.body, req.query);
+    try {
+        const { token } = req.body;
+        console.log(token);
+        if (!token)
+            return res.status(400).json(new ApiError(400, "Token missing."));
+
+        const decoded = jwt.verify(token, conf.emailSecret);
+
+        const user = await User.findById(decoded.id);
+
+        if (!user)
+            return res.status(400).json(new ApiError(404, "User not found."));
+
+        if (user.isVerified) {
+            return res
+                .status(400)
+                .json(new ApiError(400, "Email already verified."));
+        }
+
+        user.isVerified = true;
+
+        await user.save();
+
+        res.status(200).json(
+            new ApiResponse(
+                200,
+                {
+                    token,
+                    user,
+                },
+                "Email verified successfully."
+            )
+        );
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(new ApiError(500, "Server error verifing email."));
     }
 };
 
@@ -125,6 +156,17 @@ export const loginUser = async (req, res, next) => {
             return res
                 .status(404)
                 .json(new ApiError(404, "User with this email doesnot exist."));
+        }
+
+        if (!user.isVerified) {
+            return res
+                .status(400)
+                .json(
+                    new ApiError(
+                        400,
+                        "Please verify your email before logging in."
+                    )
+                );
         }
 
         const isPasswordCorrect = await user.isPasswordCorrect(password);

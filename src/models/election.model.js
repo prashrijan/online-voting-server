@@ -38,6 +38,17 @@ const electionSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: "User",
         },
+        chunaabCode: {
+            type: String,
+        },
+        coverImage: {
+            type: String,
+        },
+        visibility: {
+            type: String,
+            enum: ["public", "private"],
+            default: "private",
+        },
     },
     { timestamps: true }
 );
@@ -98,6 +109,11 @@ electionSchema.statics.updateElectionStatus = async function () {
             await election.save();
         }
     }
+};
+
+// method to update privacy of the election
+electionSchema.methods.updatePrivacy = function () {
+    this.isPrivate = !this.isPrivate;
 };
 
 export const Election = new mongoose.model("Election", electionSchema);

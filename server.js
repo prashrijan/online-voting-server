@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./src/routes/auth.routes.js";
 import userRoutes from "./src/routes/user.routes.js";
 import electionRoutes from "./src/routes/election.route.js";
+import voteRoutes from "./src/routes/vote.route.js";
 import { dbConnection } from "./src/db/dbConfig.js";
 import { rateLimit } from "express-rate-limit";
 import passport from "./src/google-auth-app/config/passportConfig.js";
@@ -60,6 +61,9 @@ app.use("/api/v1/user", userRoutes);
 
 // election routes
 app.use("/api/v1/election", electionRoutes);
+
+// vote routes
+app.use("/api/v1/vote", voteRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is ready on http://localhost:${PORT}`);
