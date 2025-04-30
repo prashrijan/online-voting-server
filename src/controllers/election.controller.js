@@ -72,6 +72,12 @@ export const createElection = async (req, res, next) => {
             })
         );
 
+        if (!users) {
+            return res
+                .status(404)
+                .json(new ApiError(404, "Candidates doesnot exist."));
+        }
+
         users.map(async (user) => {
             user.addElection(election._id);
             user.updateRole(election._id, userId);
@@ -376,6 +382,8 @@ export const updateElectionVisibility = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { visibility } = req.body;
+
+        console.log(req.body);
 
         if (!["public", "private"].includes(visibility)) {
             return res
