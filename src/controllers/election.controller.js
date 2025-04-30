@@ -8,8 +8,15 @@ import { uploadToCloudinary } from "../utils/cloudinary/uploadToCloudinary.js";
 // create election controller
 export const createElection = async (req, res, next) => {
     try {
-        const { title, startDate, endDate, candidate, startTime, endTime } =
-            req.body;
+        const {
+            title,
+            startDate,
+            endDate,
+            candidate,
+            startTime,
+            endTime,
+            visibility = "private",
+        } = req.body;
 
         const userId = req.user._id;
 
@@ -55,6 +62,7 @@ export const createElection = async (req, res, next) => {
             coverImage: coverImageUrl,
             createdBy: req.user?._id,
             chunaabCode: generateChunaabCode(),
+            visibility,
         });
         await election.save();
 
@@ -359,6 +367,42 @@ export const getElectionByCode = async (req, res, next) => {
         console.error(`Internal Server Error : ${error}`);
         return next(
             new ApiError(500, "Server error getting election by code.")
+        );
+    }
+};
+
+// update privacy
+export const updateElectionVisibility = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { visibility } = req.body;
+
+        if (!["public", "private"].includes(visibility)) {
+            return res
+                .status(400)
+                .json(new ApiError(400, "Invalid visibility option."));
+        }
+
+        const election = await Election.findByIdAndUpdate(
+            id,
+            { visibility },
+            { new: true }
+        );
+        if (!election) {
+            return res
+                .status(404)
+                .json(new ApiError(404, "Election not found."));
+        }
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, election, "Election visibility updated.")
+            );
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(
+            new ApiError(500, "Server error updating election visibility.")
         );
     }
 };

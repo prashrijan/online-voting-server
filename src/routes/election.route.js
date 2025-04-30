@@ -9,6 +9,7 @@ import {
     deleteCandidateFromElection,
     updateElection,
     getElectionByCode,
+    updateElectionVisibility,
 } from "../controllers/election.controller.js";
 import { electionValidatior } from "../middlewares/validation/election/election.validate.js";
 import { limitElectionCreation } from "../middlewares/election.middleware.js";
@@ -44,5 +45,8 @@ router
     .route("/:id/delete-candidate")
     .delete(authenticateuser, isAdmin, deleteCandidateFromElection);
 router.route("/:id").put(authenticateuser, isAdmin, updateElection);
+router
+    .route("/update-visibility/:id")
+    .post(authenticateuser, isAdmin, updateElectionVisibility);
 
 export default router;
