@@ -15,6 +15,9 @@ const userScehma = new Schema(
             required: true,
             unique: true,
         },
+        bio: {
+            type: String,
+        },
         password: {
             type: String,
             default: null,
