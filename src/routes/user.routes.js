@@ -2,6 +2,7 @@ import express from "express";
 import { authenticateuser, isAdmin } from "../middlewares/authenticateUser.js";
 import {
     approveOrRejectSlogan,
+    fetchAllUser,
     fetchUser,
     getPendingStatusSloganRequests,
     requestSloganUpdate,
@@ -10,6 +11,8 @@ import {
 import { upload } from "../middlewares/multerUpload.js";
 
 const router = express.Router();
+
+router.route("/users").get(authenticateuser, fetchAllUser);
 
 router.route("/").get(authenticateuser, fetchUser);
 router.route("/request-slogan").post(authenticateuser, requestSloganUpdate);

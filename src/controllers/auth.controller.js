@@ -30,10 +30,11 @@ const generateAccessAndRefreshToken = async (userId) => {
 
 // register user controller
 export const registerUser = async (req, res, next) => {
+    console.log(req.body);
     try {
-        const { fullName, email, password, confirmPassword } = req.body;
+        const { fullName, email, password, confirmPassword, bio } = req.body;
 
-        if (!fullName || !email || !password || !confirmPassword) {
+        if (!fullName || !email || !password || !confirmPassword || !bio) {
             return res
                 .status(400)
                 .json(new ApiError(400, "All fields are required"));
@@ -74,6 +75,7 @@ export const registerUser = async (req, res, next) => {
             fullName,
             email,
             password,
+            bio,
         });
 
         await sendVerificationEmail(user);
