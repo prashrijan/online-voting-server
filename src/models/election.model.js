@@ -35,7 +35,7 @@ const electionSchema = new Schema(
             },
         ],
         createdBy: {
-            type: Schema.Types.ObjectId,
+            type: String,
             ref: "User",
         },
         chunaabCode: {
