@@ -60,7 +60,7 @@ export const createElection = async (req, res, next) => {
             endTime,
             candidates,
             coverImage: coverImageUrl,
-            createdBy: req.user?._id,
+            createdBy: req.user?.fullName,
             chunaabCode: generateChunaabCode(),
             visibility,
         });
