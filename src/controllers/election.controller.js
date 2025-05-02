@@ -35,6 +35,7 @@ export const createElection = async (req, res, next) => {
 
         const candidates = Array.isArray(candidate) ? candidate : [candidate];
 
+        console.log(candidates);
         let coverImageUrl;
         if (req.file) {
             coverImageUrl = await uploadToCloudinary(
