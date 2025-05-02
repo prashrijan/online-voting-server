@@ -50,14 +50,17 @@ export const authenticateuser = async (req, res, next) => {
                 .json(new ApiError(403, "Token mismatch. Access denied."));
         }
 
-        const decoded = jwt.verify(tokenFromDb, conf.jwtSecret);
-
-        if (!decoded) {
-            return res
-                .status(401)
-                .json(
-                    new ApiError(401, "Invalid token. Authentication failed.")
-                );
+        let decoded;
+        try {
+            decoded = jwt.verify(tokenFromDb, conf.jwtSecret);
+        } catch (err) {
+            if (err.name === "TokenExpiredError") {
+                return res.status(401).json(new ApiError(401, "jwt expired"));
+            } else {
+                return res
+                    .status(403)
+                    .json(new ApiError(403, "Invalid token."));
+            }
         }
 
         const user = await User.findOne({ email: decoded.email });
