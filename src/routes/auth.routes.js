@@ -2,12 +2,16 @@ import express from "express";
 import {
     loginSuccess,
     loginUser,
+    logoutUser,
     refreshToken,
     registerUser,
     verifyEmail,
 } from "../controllers/auth.controller.js";
 import passport from "../google-auth-app/config/passportConfig.js";
-import { refreshAuthenticate } from "../middlewares/authenticateUser.js";
+import {
+    authenticateuser,
+    refreshAuthenticate,
+} from "../middlewares/authenticateUser.js";
 
 const router = express.Router();
 
@@ -29,5 +33,8 @@ router.route("/google/callback").get(
 );
 
 router.route("/refresh-token").get(refreshAuthenticate, refreshToken);
+
+//logout route
+router.route("/logout").get(authenticateuser, logoutUser);
 
 export default router;

@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./src/routes/auth.routes.js";
 import userRoutes from "./src/routes/user.routes.js";
 import electionRoutes from "./src/routes/election.route.js";
+import chatbotRoutes from "./src/routes/chatbot.route.js";
 import voteRoutes from "./src/routes/vote.route.js";
 import { dbConnection } from "./src/db/dbConfig.js";
 import { rateLimit } from "express-rate-limit";
@@ -18,12 +19,12 @@ app.use(cors());
 app.use(express.json());
 
 app.use(
-    session({
-        secret: conf.sessionSecret,
-        resave: false,
-        saveUninitialized: false,
-        cookie: { secure: false },
-    })
+  session({
+    secret: conf.sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false },
+  })
 );
 
 // Initialize passport
@@ -32,16 +33,14 @@ app.use(passport.session());
 
 // database connection
 dbConnection()
-    .then(() => console.log("Database connected to the server"))
-    .catch((error) =>
-        console.log(`Database server connection failed: ${error}`)
-    );
+  .then(() => console.log("Database connected to the server"))
+  .catch((error) => console.log(`Database server connection failed: ${error}`));
 
 // rate limit
 const limiter = rateLimit({
-    windowMs: 60 * 1000,
-    limit: 5,
-    message: "Too many requests from this IP. Please try again later",
+  windowMs: 60 * 1000,
+  limit: 5,
+  message: "Too many requests from this IP. Please try again later",
 });
 
 // app.use(limiter);
@@ -50,7 +49,7 @@ const limiter = rateLimit({
 startCronJobs();
 
 app.get("/", (req, res) => {
-    res.send("An Online Voting System");
+  res.send("An Online Voting System");
 });
 
 // auth routes
@@ -65,6 +64,9 @@ app.use("/api/v1/election", electionRoutes);
 // vote routes
 app.use("/api/v1/vote", voteRoutes);
 
+// chatbot routes
+app.use("/api/v1/chat", chatbotRoutes);
+
 app.listen(PORT, () => {
-    console.log(`Server is ready on http://localhost:${PORT}`);
+  console.log(`Server is ready on http://localhost:${PORT}`);
 });
