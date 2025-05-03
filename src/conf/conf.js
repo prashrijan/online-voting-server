@@ -16,4 +16,5 @@ export const conf = {
     emailUser: process.env.EMAIL_USER,
     emailPass: process.env.EMAIL_PASS,
     emailSecret: process.env.EMAIL_SECRET,
+    geminiApiKey: process.env.GEMINI_API_KEY,
 };
