@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./src/routes/auth.routes.js";
 import userRoutes from "./src/routes/user.routes.js";
 import electionRoutes from "./src/routes/election.route.js";
+import chatbotRoutes from "./src/routes/chatbot.route.js";
 import voteRoutes from "./src/routes/vote.route.js";
 import { dbConnection } from "./src/db/dbConfig.js";
 import { rateLimit } from "express-rate-limit";
@@ -64,6 +65,9 @@ app.use("/api/v1/election", electionRoutes);
 
 // vote routes
 app.use("/api/v1/vote", voteRoutes);
+
+// chatbot routes
+app.use("/api/v1/chat", chatbotRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is ready on http://localhost:${PORT}`);
