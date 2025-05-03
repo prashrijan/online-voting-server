@@ -1,13 +1,17 @@
 import express from "express";
 import {
-    loginSuccess,
-    loginUser,
-    refreshToken,
-    registerUser,
-    verifyEmail,
+  loginSuccess,
+  loginUser,
+  logoutUser,
+  refreshToken,
+  registerUser,
+  verifyEmail,
 } from "../controllers/auth.controller.js";
 import passport from "../google-auth-app/config/passportConfig.js";
-import { refreshAuthenticate } from "../middlewares/authenticateUser.js";
+import {
+  authenticateuser,
+  refreshAuthenticate,
+} from "../middlewares/authenticateUser.js";
 
 const router = express.Router();
 
@@ -17,17 +21,20 @@ router.route("/verify-email").post(verifyEmail);
 
 // route to start google login
 router
-    .route("/google")
-    .get(passport.authenticate("google", { scope: ["profile", "email"] }));
+  .route("/google")
+  .get(passport.authenticate("google", { scope: ["profile", "email"] }));
 
 // google callback route
 router.route("/google/callback").get(
-    passport.authenticate("google", {
-        failureRedirect: "/",
-    }),
-    loginSuccess
+  passport.authenticate("google", {
+    failureRedirect: "/",
+  }),
+  loginSuccess
 );
 
 router.route("/refresh-token").get(refreshAuthenticate, refreshToken);
+
+//logout route
+router.route("/logout").get(authenticateuser, logoutUser);
 
 export default router;
