@@ -30,7 +30,6 @@ const generateAccessAndRefreshToken = async (userId) => {
 
 // register user controller
 export const registerUser = async (req, res, next) => {
-    console.log(req.body);
     try {
         const { fullName, email, password, confirmPassword, bio } = req.body;
 
@@ -76,6 +75,8 @@ export const registerUser = async (req, res, next) => {
             email,
             password,
             bio,
+            profileImage:
+                "https://res.cloudinary.com/dlgvqwvwg/image/upload/v1746247834/donut_zn2hsx.png",
         });
 
         await sendVerificationEmail(user);
