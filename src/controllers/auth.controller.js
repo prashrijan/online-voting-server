@@ -219,7 +219,9 @@ export const googleAuthCallback = async (
         const { id, displayName, emails } = profile;
         const email = emails[0].value;
         const fullName = displayName;
-        const profileImage = profile.photos[0].value;
+        const profileImage =
+            profile.photos[0].value ||
+            "https://res.cloudinary.com/dlgvqwvwg/image/upload/v1746247834/donut_zn2hsx.png";
 
         let user = await User.findOne({ email });
 
