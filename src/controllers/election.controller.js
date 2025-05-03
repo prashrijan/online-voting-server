@@ -7,6 +7,8 @@ import { uploadToCloudinary } from "../utils/cloudinary/uploadToCloudinary.js";
 
 // create election controller
 export const createElection = async (req, res, next) => {
+    console.log(req.body);
+    console.log(req.file);
     try {
         const {
             title,

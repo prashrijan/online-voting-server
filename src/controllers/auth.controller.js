@@ -240,6 +240,7 @@ export const googleAuthCallback = async (
                 address: null,
                 status: "Active",
                 googleId: id,
+                isVerified: true,
             });
         }
 
