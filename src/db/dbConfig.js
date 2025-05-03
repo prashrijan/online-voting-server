@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import { conf } from "../conf/conf.js";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 export const dbConnection = async () => {
-    try {
-        const res = await mongoose.connect(`${conf.mongoDbUrl}/${conf.dbName}`);
-        res && console.log(`Database connection successful.`);
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
+  try {
+    const res = await mongoose.connect(`${conf.mongoDbUrl}/${conf.dbName}`);
+    res && console.log(`Database connection successful.`);
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 };
