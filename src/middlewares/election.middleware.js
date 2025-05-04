@@ -3,9 +3,9 @@ import { ApiError } from "../utils/customResponse/ApiError.js";
 
 export const limitElectionCreation = async (req, res, next) => {
     try {
-        const userId = req.user?._id;
+        const user = req.user;
 
-        if (!userId) {
+        if (!user) {
             return res
                 .status(400)
                 .json(new ApiError(400, "Please authenticate the user."));
@@ -16,7 +16,7 @@ export const limitElectionCreation = async (req, res, next) => {
         const endOfDay = new Date(now.setHours(23, 59, 59, 999));
 
         const electionCount = await Election.countDocuments({
-            createdBy: userId,
+            "createdBy._id": user._id,
             createdAt: { $gte: startOfDay, $lte: endOfDay },
         });
 
