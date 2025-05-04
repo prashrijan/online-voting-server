@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/customResponse/ApiError.js";
 import jwt from "jsonwebtoken";
 import { conf } from "../conf/conf.js";
+import { Election } from "../models/election.model.js";
 
 /**
  * Middleware to authenticate a user based on a provided JWT token.
@@ -49,14 +50,17 @@ export const authenticateuser = async (req, res, next) => {
                 .json(new ApiError(403, "Token mismatch. Access denied."));
         }
 
-        const decoded = jwt.verify(tokenFromDb, conf.jwtSecret);
-
-        if (!decoded) {
-            return res
-                .status(401)
-                .json(
-                    new ApiError(401, "Invalid token. Authentication failed.")
-                );
+        let decoded;
+        try {
+            decoded = jwt.verify(tokenFromDb, conf.jwtSecret);
+        } catch (err) {
+            if (err.name === "TokenExpiredError") {
+                return res.status(401).json(new ApiError(401, "jwt expired"));
+            } else {
+                return res
+                    .status(403)
+                    .json(new ApiError(403, "Invalid token."));
+            }
         }
 
         const user = await User.findOne({ email: decoded.email });
@@ -146,12 +150,20 @@ export const refreshAuthenticate = async (req, res, next) => {
 export const isAdmin = async (req, res, next) => {
     try {
         const user = req.user;
+        const electionId = req.params.id;
 
         if (!user) {
             return res.status(404).json(new ApiError(404, "User not found."));
         }
 
-        if (user.role == "Admin") {
+        const election = await Election.findById(electionId);
+
+        if (!election)
+            return res
+                .status(404)
+                .json(new ApiError(404, "Election not found."));
+
+        if (String(election.createdBy) === String(user._id)) {
             next();
         } else {
             return res
