@@ -7,8 +7,6 @@ import { uploadToCloudinary } from "../utils/cloudinary/uploadToCloudinary.js";
 
 // create election controller
 export const createElection = async (req, res, next) => {
-    console.log(req.body);
-    console.log(req.file);
     try {
         const {
             title,
@@ -37,7 +35,6 @@ export const createElection = async (req, res, next) => {
 
         const candidates = Array.isArray(candidate) ? candidate : [candidate];
 
-        console.log(candidates);
         let coverImageUrl;
         if (req.file) {
             coverImageUrl = await uploadToCloudinary(
@@ -63,7 +60,11 @@ export const createElection = async (req, res, next) => {
             endTime,
             candidates,
             coverImage: coverImageUrl,
-            createdBy: req.user?.fullName,
+            createdBy: {
+                _id: req.user?._id,
+                fullName: req.user?.fullName,
+                email: req.user?.email,
+            },
             chunaabCode: generateChunaabCode(),
             visibility,
         });

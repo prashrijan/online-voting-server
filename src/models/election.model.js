@@ -35,8 +35,19 @@ const electionSchema = new Schema(
             },
         ],
         createdBy: {
-            type: String,
-            ref: "User",
+            _id: {
+                type: Schema.Types.ObjectId,
+                required: true,
+                ref: "User",
+            },
+            email: {
+                type: String,
+                required: true,
+            },
+            fullName: {
+                type: String,
+                required: true,
+            },
         },
         chunaabCode: {
             type: String,
@@ -113,7 +124,8 @@ electionSchema.statics.updateElectionStatus = async function () {
 
 // method to update privacy of the election
 electionSchema.methods.updatePrivacy = function () {
-    this.isPrivate = !this.isPrivate;
+    this.visibility = this.visibility === "private" ? "public" : "private";
+    return this.save();
 };
 
 export const Election = new mongoose.model("Election", electionSchema);
