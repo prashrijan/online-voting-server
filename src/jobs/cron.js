@@ -8,3 +8,4 @@ export const startCronJobs = () => {
 
     console.log("⏰ Cron jobs initialized.");
 };
+

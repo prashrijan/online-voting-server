@@ -4,6 +4,8 @@ import { User } from "../models/user.model.js";
 import { Session } from "../models/session.model.js";
 import { checkPasswordStrength } from "../utils/others/checkPasswordStrength.js";
 import { conf } from "../conf/conf.js";
+import { sendVerificationEmail } from "../utils/nodemailer/sendVerificationEmail.js";
+import jwt from "jsonwebtoken";
 
 // generate access and refresh token
 const generateAccessAndRefreshToken = async (userId) => {
@@ -29,25 +31,9 @@ const generateAccessAndRefreshToken = async (userId) => {
 // register user controller
 export const registerUser = async (req, res, next) => {
     try {
-        const {
-            fullName,
-            email,
-            dob,
-            phone,
-            address,
-            password,
-            confirmPassword,
-        } = req.body;
+        const { fullName, email, password, confirmPassword, bio } = req.body;
 
-        if (
-            !fullName ||
-            !dob ||
-            !address ||
-            !email ||
-            !phone ||
-            !password ||
-            !confirmPassword
-        ) {
+        if (!fullName || !email || !password || !confirmPassword || !bio) {
             return res
                 .status(400)
                 .json(new ApiError(400, "All fields are required"));
@@ -73,7 +59,7 @@ export const registerUser = async (req, res, next) => {
         }
 
         const existedUser = await User.findOne({
-            $or: [{ email }, { phone }],
+            email,
         });
 
         if (existedUser) {
@@ -87,22 +73,70 @@ export const registerUser = async (req, res, next) => {
         const user = await User.create({
             fullName,
             email,
-            phone,
-            dob,
-            address,
             password,
+            bio,
+            profileImage:
+                "https://res.cloudinary.com/dlgvqwvwg/image/upload/v1746247834/donut_zn2hsx.png",
         });
+
+        await sendVerificationEmail(user);
 
         const createdUser = await User.findById(user._id).select("-password");
 
         return res
             .status(201)
             .json(
-                new ApiResponse(201, createdUser, "User successfully created.")
+                new ApiResponse(
+                    201,
+                    createdUser,
+                    "User registered successfully. Please verify your email."
+                )
             );
     } catch (error) {
         console.error(`Internal Server Error : ${error}`);
         return next(new ApiError(500, "Server error registering user."));
+    }
+};
+
+// verify email
+export const verifyEmail = async (req, res, next) => {
+    console.log(req.body, req.query);
+    try {
+        const { token } = req.body;
+        console.log(token);
+        if (!token)
+            return res.status(400).json(new ApiError(400, "Token missing."));
+
+        const decoded = jwt.verify(token, conf.emailSecret);
+
+        const user = await User.findById(decoded.id);
+
+        if (!user)
+            return res.status(400).json(new ApiError(404, "User not found."));
+
+        if (user.isVerified) {
+            return res
+                .status(400)
+                .json(new ApiError(400, "Email already verified."));
+        }
+
+        user.isVerified = true;
+
+        await user.save();
+
+        res.status(200).json(
+            new ApiResponse(
+                200,
+                {
+                    token,
+                    user,
+                },
+                "Email verified successfully."
+            )
+        );
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(new ApiError(500, "Server error verifing email."));
     }
 };
 
@@ -125,6 +159,17 @@ export const loginUser = async (req, res, next) => {
             return res
                 .status(404)
                 .json(new ApiError(404, "User with this email doesnot exist."));
+        }
+
+        if (!user.isVerified) {
+            return res
+                .status(400)
+                .json(
+                    new ApiError(
+                        400,
+                        "Please verify your email before logging in."
+                    )
+                );
         }
 
         const isPasswordCorrect = await user.isPasswordCorrect(password);
@@ -174,6 +219,9 @@ export const googleAuthCallback = async (
         const { id, displayName, emails } = profile;
         const email = emails[0].value;
         const fullName = displayName;
+        const profileImage =
+            profile.photos[0].value ||
+            "https://res.cloudinary.com/dlgvqwvwg/image/upload/v1746247834/donut_zn2hsx.png";
 
         let user = await User.findOne({ email });
 
@@ -191,11 +239,11 @@ export const googleAuthCallback = async (
             user = await User.create({
                 fullName,
                 email,
-                dob: null,
+                profileImage,
+
                 password: null,
-                address: null,
-                status: "Active",
                 googleId: id,
+                isVerified: true,
             });
         }
 
@@ -292,5 +340,38 @@ export const refreshToken = async (req, res) => {
         return res
             .status(500)
             .json(new ApiError(500, "Server error renewing access token."));
+    }
+};
+
+export const logoutUser = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res
+                .status(401)
+                .json(new ApiError(401, "User not authenticated."));
+        }
+
+        const dbuser = await User.findById(user._id);
+
+        if (!dbuser) {
+            return res.status(404).json(new ApiError(404, "User not found."));
+        }
+
+        // Remove the refresh token from the user
+        dbuser.refreshToken = "";
+        await dbuser.save({ validateBeforeSave: false });
+
+        //delete all sessios associated with the user email
+        await Session.deleteMany({ associate: dbuser.email });
+
+        return res
+            .status(200)
+            .json(new ApiResponse(200, {}, "Logged out successfully."));
+    } catch (error) {
+        console.log("Logout Error:", error);
+        return res
+            .status(500)
+            .json(new ApiError(500, "Server error logging out user."));
     }
 };
