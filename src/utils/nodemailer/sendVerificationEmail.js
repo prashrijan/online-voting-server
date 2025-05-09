@@ -3,6 +3,9 @@ import { conf } from "../../conf/conf.js";
 import { transporter } from "./transporter.js";
 
 export const sendVerificationEmail = async (user) => {
+    if (!user || !user.email) {
+        throw new Error("No email provided.");
+    }
     const token = jwt.sign(
         {
             id: user._id,
