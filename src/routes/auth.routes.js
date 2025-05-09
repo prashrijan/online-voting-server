@@ -5,7 +5,9 @@ import {
     logoutUser,
     refreshToken,
     registerUser,
+    requestForgetPassword,
     verifyEmail,
+    resetPassword,
 } from "../controllers/auth.controller.js";
 import passport from "../google-auth-app/config/passportConfig.js";
 import {
@@ -36,5 +38,10 @@ router.route("/refresh-token").get(refreshAuthenticate, refreshToken);
 
 //logout route
 router.route("/logout").get(authenticateuser, logoutUser);
+
+// forgot-password route
+router.route("/forget-password").post(requestForgetPassword);
+
+router.route("/reset-password/:token").put(resetPassword);
 
 export default router;
