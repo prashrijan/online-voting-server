@@ -416,6 +416,7 @@ export const requestForgetPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
     try {
         const { token } = req.params;
+
         const { password } = req.body;
 
         if (!token)
@@ -427,6 +428,19 @@ export const resetPassword = async (req, res) => {
         const decoded = jwt.verify(token, conf.emailSecret);
 
         const user = await User.findById(decoded.id);
+
+        const isOldPassword = await user.isPasswordCorrect(password);
+
+        if (isOldPassword) {
+            return res
+                .status(400)
+                .json(
+                    new ApiError(
+                        400,
+                        "This password is same as old, enter a new password."
+                    )
+                );
+        }
 
         if (!user)
             return res
