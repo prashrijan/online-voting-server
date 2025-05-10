@@ -10,6 +10,7 @@ import {
     updateElection,
     getElectionByCode,
     updateElectionVisibility,
+    getElectionCandidates,
 } from "../controllers/election.controller.js";
 import { electionValidatior } from "../middlewares/validation/election/election.validate.js";
 import { limitElectionCreation } from "../middlewares/election.middleware.js";
@@ -48,5 +49,7 @@ router.route("/:id").put(authenticateuser, isAdmin, updateElection);
 router
     .route("/update-visibility/:id")
     .post(authenticateuser, isAdmin, updateElectionVisibility);
+
+router.route("/get-election-candidates/:electionId").get(getElectionCandidates);
 
 export default router;

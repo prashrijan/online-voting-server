@@ -6,6 +6,7 @@ import { checkPasswordStrength } from "../utils/others/checkPasswordStrength.js"
 import { conf } from "../conf/conf.js";
 import { sendVerificationEmail } from "../utils/nodemailer/sendVerificationEmail.js";
 import jwt from "jsonwebtoken";
+import { sendResetPasswordEmail } from "../utils/nodemailer/sendResetPasswordEmail.js";
 
 // generate access and refresh token
 const generateAccessAndRefreshToken = async (userId) => {
@@ -100,10 +101,9 @@ export const registerUser = async (req, res, next) => {
 
 // verify email
 export const verifyEmail = async (req, res, next) => {
-    console.log(req.body, req.query);
     try {
         const { token } = req.body;
-        console.log(token);
+
         if (!token)
             return res.status(400).json(new ApiError(400, "Token missing."));
 
@@ -373,5 +373,90 @@ export const logoutUser = async (req, res) => {
         return res
             .status(500)
             .json(new ApiError(500, "Server error logging out user."));
+    }
+};
+
+export const requestForgetPassword = async (req, res) => {
+    console.log(req.body);
+    try {
+        const { email } = req.body;
+        if (!email)
+            return res
+                .status(404)
+                .json(new ApiError(404, "Email not provided."));
+
+        const user = await User.findOne({ email });
+
+        if (!user)
+            return res
+                .status(404)
+                .json(new ApiError(404, "User doesnot exist."));
+
+        console.log(user);
+
+        await sendResetPasswordEmail(user);
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    {},
+                    "If the email exists, a password reset link has been sent."
+                )
+            );
+    } catch (error) {
+        console.log("Reset Password Error:", error);
+        return res
+            .status(500)
+            .json(new ApiError(500, "Server error requesting reset password."));
+    }
+};
+
+export const resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+
+        const { password } = req.body;
+
+        if (!token)
+            return res.status(400).json(new ApiError(400, "Token missing."));
+
+        if (!password)
+            return res.status(400).json(new ApiError(400, "Password missing."));
+
+        const decoded = jwt.verify(token, conf.emailSecret);
+
+        const user = await User.findById(decoded.id);
+
+        const isOldPassword = await user.isPasswordCorrect(password);
+
+        if (isOldPassword) {
+            return res
+                .status(400)
+                .json(
+                    new ApiError(
+                        400,
+                        "This password is same as old, enter a new password."
+                    )
+                );
+        }
+
+        if (!user)
+            return res
+                .status(404)
+                .json(new ApiError(404, "User doesnot exist."));
+
+        user.password = password;
+        await user.save();
+
+        return res
+            .status(200)
+            .json(new ApiResponse(200, {}, "Password changed successfully."));
+    } catch (error) {
+        console.log("Reset Password Error:", error);
+        return res
+            .status(500)
+            .json(new ApiError(500, "Server error reseting password."));
     }
 };
