@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose, { Mongoose } from "mongoose"
 import { Election } from "../models/election.model.js"
 import { Vote } from "../models/vote.model.js"
 import { ApiError } from "../utils/customResponse/ApiError.js"
@@ -142,22 +142,63 @@ export const checkVoteStatus = async (req, res, next) => {
     if (!electionId) {
       return res.status(404).json(new ApiError(404, "Election id missing."))
     }
-    let hasVoted
 
     let vote = await Vote.find({
       electionId,
       userId,
     })
 
-    if (vote) {
-      hasVoted = true
-    } else {
-      hasVoted = false
-    }
+    const hasVoted = vote.length > 0
 
     return res.status(200).json(new ApiResponse(200, hasVoted, "Vote status checked."))
   } catch (error) {
     console.error(`Internal Server Error : ${error}`)
     return next(new ApiError(500, "Server error checking voting status."))
+  }
+}
+
+export const getLiveVoteData = async (req, res) => {
+  const { electionId } = req.params
+
+  try {
+    const votes = await Vote.aggregate([
+      {
+        $match: {
+          electionId: new mongoose.Types.ObjectId(electionId),
+        },
+      },
+      {
+        $group: {
+          _id: "$candidateId",
+          voteCount: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "users", // candidateId refers to User model
+          localField: "_id",
+          foreignField: "_id",
+          as: "candidate",
+        },
+      },
+      {
+        $unwind: "$candidate",
+      },
+      {
+        $project: {
+          candidateId: "$_id",
+          fullName: "$candidate.fullName",
+          voteCount: 1,
+        },
+      },
+      {
+        $sort: { voteCount: -1 },
+      },
+    ])
+
+    res.status(200).json(new ApiResponse(200, votes, "Vote count fetched."))
+  } catch (error) {
+    console.error("Live vote aggregation error:", error)
+    res.status(500).json(new ApiError(500, "Live vote aggregation error"))
   }
 }
