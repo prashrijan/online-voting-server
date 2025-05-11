@@ -102,6 +102,8 @@ electionSchema.statics.updateElectionStatus = async function () {
 
     const pendingElections = await this.find({ status: "pending" });
 
+    console.log(pendingElections);
+
     for (const election of pendingElections) {
         const start = combineDateTime(election.startDate, election.startTime);
 
