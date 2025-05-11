@@ -11,6 +11,7 @@ import {
     getElectionByCode,
     updateElectionVisibility,
     getElectionCandidates,
+    getMyElections,
 } from "../controllers/election.controller.js";
 import { electionValidatior } from "../middlewares/validation/election/election.validate.js";
 import { limitElectionCreation } from "../middlewares/election.middleware.js";
@@ -51,5 +52,7 @@ router
     .post(authenticateuser, isAdmin, updateElectionVisibility);
 
 router.route("/get-election-candidates/:electionId").get(getElectionCandidates);
+
+router.route("/my-elections").get(authenticateuser, getMyElections);
 
 export default router;

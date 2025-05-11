@@ -467,3 +467,36 @@ export const getElectionCandidates = async (req, res, next) => {
         );
     }
 };
+
+export const getMyElections = async (req, res, next) => {
+    try {
+        const userId = req.user?._id;
+
+        if (!userId)
+            return res.status(404).json(new ApiError(404, "User id missing."));
+
+        const user = await User.findById(userId);
+
+        if (!user)
+            return res.status(404).json(new ApiError(404, "User not found."));
+
+        const electionCreated = await Election.find({
+            "createdBy._id": user._id,
+            "createdBy.fullName": user.fullName,
+            "createdBy.email": user.email,
+        });
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    electionCreated,
+                    "Your elections found successfully."
+                )
+            );
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(new ApiError(500, "Server error getting your election"));
+    }
+};

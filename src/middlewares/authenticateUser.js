@@ -163,7 +163,7 @@ export const isAdmin = async (req, res, next) => {
                 .status(404)
                 .json(new ApiError(404, "Election not found."));
 
-        if (String(election.createdBy) === String(user._id)) {
+        if (String(election.createdBy._id) === String(user._id)) {
             next();
         } else {
             return res
