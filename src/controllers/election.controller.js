@@ -102,7 +102,9 @@ export const createElection = async (req, res, next) => {
 // get all elections controller
 export const getElections = async (req, res, next) => {
     try {
-        const election = await Election.find();
+        const election = await Election.find({
+            visibility: "public",
+        });
 
         if (!election) {
             return res
