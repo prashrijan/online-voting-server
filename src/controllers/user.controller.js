@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/customResponse/ApiError.js";
 import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
 import { uploadToCloudinary } from "../utils/cloudinary/uploadToCloudinary.js";
+import { sendHelpMessageEmal } from "../utils/nodemailer/sendHelpMessageEmail.js";
 
 export const fetchUser = async (req, res, next) => {
     try {
@@ -177,5 +178,28 @@ export const fetchAllUser = async (req, res, next) => {
     } catch (error) {
         console.error(`Internal Server Error : ${error}`);
         return next(new ApiError(500, "Server error fetching all the users."));
+    }
+};
+
+export const sendHelpMessage = async (req, res, next) => {
+    try {
+        const { name, email, subject, message } = req.body;
+
+        if (!name || !email || !subject || !message) {
+            return res
+                .status(400)
+                .json(new ApiError(400, "All fields required."));
+        }
+
+        const mail = await sendHelpMessageEmal(name, email, subject, message);
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, mail, "Thank you for contacting Chunaab.")
+            );
+    } catch (error) {
+        console.error(`Internal Server Error : ${error}`);
+        return next(new ApiError(500, "Server error sending help message."));
     }
 };

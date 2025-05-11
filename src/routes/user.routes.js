@@ -7,6 +7,7 @@ import {
     getPendingStatusSloganRequests,
     requestSloganUpdate,
     updateProfile,
+    sendHelpMessage,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multerUpload.js";
 
@@ -27,5 +28,7 @@ router
 router
     .route("/update-profile")
     .put(authenticateuser, upload.single("profileImage"), updateProfile);
+
+router.route("/help").post(sendHelpMessage);
 
 export default router;
