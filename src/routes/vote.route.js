@@ -6,11 +6,13 @@ import {
     checkVoteStatus,
     getLiveVoteData,
     getVoterCounts,
+    getMyVotes,
 } from "../controllers/vote.controller.js";
 
 const router = express.Router();
 
 router.route("/").post(authenticateuser, castVote);
+router.route("/my-votes").get(authenticateuser, getMyVotes);
 
 router.route("/results/:id").get(authenticateuser, isAdmin, getElectionResults);
 
