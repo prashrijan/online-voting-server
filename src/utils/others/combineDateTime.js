@@ -1,33 +1,34 @@
-/**
- * Combines a date string and a time string into a single JavaScript Date object.
- *
- * @param {string} date - The date string in the format "YYYY-MM-DD".
- * @param {string} time - The time string in the format "hh:mm AM/PM".
- * @returns {Date} A JavaScript Date object representing the combined date and time.
- *
- * @example
- * // Returns a Date object for "2024-10-10T14:30:00.000Z"
- * combineDateTime("2024-10-10", "2:30 PM");
- *
- * @throws {TypeError} Throws an error if the input strings are not in the expected format.
- */
 export const combineDateTime = (date, time) => {
     if (!date || !time) return;
-    const [timeStr, meredim] = time.trim().toUpperCase().split(" ");
-    let [hour, minute] = timeStr.split(":");
 
-    hour = parseInt(hour, 10);
-    minute = parseInt(minute, 10);
+    let dateOnly;
 
-    if (meredim === "PM" && hour <= 12) {
-        hour += 12;
+    // Case 1: If it's a Date object
+    if (date instanceof Date) {
+        dateOnly = date.toISOString().split("T")[0];
+    }
+    // Case 2: If it's a string
+    else if (typeof date === "string") {
+        dateOnly = date.includes("T") ? date.split("T")[0] : date;
+    } else {
+        return new Date("Invalid");
     }
 
-    if (meredim === "AM" && hour === 12) {
-        hour = 0;
-    }
+    // Normalize time input
+    const [timePart, meridiem] = time.trim().toUpperCase().split(" ");
+    if (!timePart || !meridiem) return new Date("Invalid");
 
-    const combined = new Date(date);
-    combined.setHours(hour, minute, 0, 0);
-    return combined;
+    let [hours, minutes] = timePart.split(":").map(Number);
+    if (isNaN(hours) || isNaN(minutes)) return new Date("Invalid");
+
+    // Convert to 24-hour time
+    if (meridiem === "PM" && hours < 12) hours += 12;
+    if (meridiem === "AM" && hours === 12) hours = 0;
+
+    const isoString = `${dateOnly}T${String(hours).padStart(2, "0")}:${String(
+        minutes
+    ).padStart(2, "0")}:00`;
+
+    const result = new Date(isoString);
+    return isNaN(result.getTime()) ? new Date("Invalid") : result;
 };
