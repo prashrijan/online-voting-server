@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
 import { Election } from "../models/election.model.js";
 import { generateChunaabCode } from "../utils/others/generateChuaabCode.js";
 import { User } from "../models/user.model.js";
+import { Vote } from "../models/vote.model.js";
 import { uploadToCloudinary } from "../utils/cloudinary/uploadToCloudinary.js";
 
 // create election controller
@@ -182,6 +183,8 @@ export const deleteElection = async (req, res, next) => {
                 .json(new ApiError(404, "Election not found."));
         }
 
+        await Vote.deleteMany({ electionId: id });
+
         return res
             .status(200)
             .json(
@@ -354,12 +357,16 @@ export const getElectionByCode = async (req, res, next) => {
     try {
         const chunaabCode = req.params.code;
 
-        console.log(req.params);
-
         if (!chunaabCode) {
             return res
                 .status(400)
                 .json(new ApiError(400, "Please enter the code to continue."));
+        }
+
+        if (chunaabCode.length < 8 || chunaabCode.length > 8) {
+            return res
+                .status(400)
+                .json(new ApiError(400, "Please enter a valid chunaab code."));
         }
 
         const election = await Election.findOne({ chunaabCode });

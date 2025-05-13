@@ -260,3 +260,24 @@ export const getVoterCounts = async (req, res) => {
         res.status(500).json(new ApiError(500, "Getting voter count error."));
     }
 };
+
+export const getMyVotes = async (req, res) => {
+    try {
+        const userId = req.user?._id;
+
+        const votes = await Vote.find({ userId })
+            .populate({
+                path: "electionId",
+                select: "title status coverImage",
+            })
+            .populate({ path: "candidateId", select: "fullName profileImage" })
+            .sort({ createdAt: -1 });
+
+        return res
+            .status(200)
+            .json(new ApiResponse(200, votes, "Votes found successfully."));
+    } catch (error) {
+        console.error("Getiing my votes  error:", error);
+        res.status(500).json(new ApiError(500, "Getting my votes error."));
+    }
+};
