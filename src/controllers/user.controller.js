@@ -123,11 +123,12 @@ export const updateProfile = async (req, res, next) => {
     try {
         const userId = req.user._id;
 
-        const { fullName } = req.body;
+        const { fullName, bio } = req.body;
 
         const updates = {};
 
         if (fullName) updates.fullName = fullName;
+        if (bio) updates.bio = bio;
 
         if (req.file) {
             const imageUrl = await uploadToCloudinary(
