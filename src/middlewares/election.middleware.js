@@ -11,6 +11,8 @@ export const limitElectionCreation = async (req, res, next) => {
                 .json(new ApiError(400, "Please authenticate the user."));
         }
 
+        if (user.isPaid) return next();
+
         const now = new Date();
         const startOfDay = new Date(now.setHours(0, 0, 0, 0));
         const endOfDay = new Date(now.setHours(23, 59, 59, 999));

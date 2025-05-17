@@ -17,4 +17,6 @@ export const conf = {
     emailPass: process.env.EMAIL_PASS,
     emailSecret: process.env.EMAIL_SECRET,
     geminiApiKey: process.env.GEMINI_API_KEY,
+    stripePrivateKey: process.env.STRIPE_PRIVATE_KEY,
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
 };
