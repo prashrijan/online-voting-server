@@ -12,6 +12,7 @@ import passport from "./src/google-auth-app/config/passportConfig.js";
 import session from "express-session";
 import { conf } from "./src/conf/conf.js";
 import { startCronJobs } from "./src/jobs/cron.js";
+import { webHookRoute } from "./src/controllers/payment.controller.js";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -19,9 +20,9 @@ const PORT = process.env.PORT;
 app.use(cors());
 
 app.use(
-    "/api/v1/payment",
+    "/api/v1/payment/webhook",
     express.raw({ type: "application/json" }),
-    paymentRoutes
+    webHookRoute
 );
 
 app.use(express.json());
