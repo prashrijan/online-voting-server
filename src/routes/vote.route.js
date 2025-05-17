@@ -14,7 +14,7 @@ const router = express.Router();
 router.route("/").post(authenticateuser, castVote);
 router.route("/my-votes").get(authenticateuser, getMyVotes);
 
-router.route("/results/:id").get(authenticateuser, isAdmin, getElectionResults);
+router.route("/results/:id").get(authenticateuser, getElectionResults);
 
 router
     .route("/checkVoteStatus/:electionId")

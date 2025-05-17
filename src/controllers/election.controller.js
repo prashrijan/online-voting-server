@@ -509,3 +509,20 @@ export const getMyElections = async (req, res, next) => {
         return next(new ApiError(500, "Server error getting your election"));
     }
 };
+
+export const getAllFinishedElections = async (req, res, next) => {
+    try {
+        const elections = await Election.find({ status: "finished" })
+            .populate("createdBy", "fullName")
+            .sort({ endDate: -1 });
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, elections, "Finished Elections Fetched")
+            );
+    } catch (error) {
+        console.error(error);
+        next(new ApiError(500, "Failed to fetch finished elections"));
+    }
+};
