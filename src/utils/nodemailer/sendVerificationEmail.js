@@ -28,7 +28,7 @@ export const sendVerificationEmail = async (user) => {
           <p>Hi ${user.fullName || "there"},</p>
           <p>Thanks for signing up for Chunaab!</p>
           <p>Please click the link below to verify your email:</p>
-          <p><a href="${url}" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none;">Verify Email</a></p>
+          <button><a href="${url}" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none;">Verify Email</a></button>
           <p>Or copy & paste this link in your browser:</p>
           <p>${url}</p>
           <br />
