@@ -19,7 +19,8 @@ const PORT = process.env.PORT;
 app.use(cors());
 
 app.use(
-    "/api/v1/payment".express.raw({ type: "application/json" }),
+    "/api/v1/payment",
+    express.raw({ type: "application/json" }),
     paymentRoutes
 );
 
