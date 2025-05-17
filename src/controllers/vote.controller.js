@@ -77,6 +77,20 @@ export const getElectionResults = async (req, res, next) => {
 
         const totalVotes = await Vote.countDocuments({ electionId });
 
+        if (totalVotes == 0) {
+            return res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {
+                        totalVotes: 0,
+                        resultsWithNames: [],
+                        winners: [],
+                    },
+                    "No votes cast yet."
+                )
+            );
+        }
+
         const results = await Vote.aggregate([
             {
                 $match: {
