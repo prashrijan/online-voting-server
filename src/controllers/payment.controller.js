@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
-import { conf } from "../conf/conf";
+import { conf } from "../conf/conf.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/customResponse/ApiError.js";
 
