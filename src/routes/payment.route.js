@@ -11,6 +11,4 @@ router
     .route("/create-checkout-session")
     .post(authenticateuser, createCheckoutSession);
 
-router.route("/webhook", webHookRoute);
-
 export default router;

@@ -58,8 +58,10 @@ export const webHookRoute = async (req, res, next) => {
         event = stripe.webhooks.constructEvent(req.body, sig, endPointSecret);
     } catch (error) {
         console.error("Webhook signature verification failed: ", error);
-        return next(new ApiError(500, "Webhook error "));
+        return res.status(400).send(`Webhook Error: ${error.message}`);
     }
+
+    console.log("Webhook event type:", event.type);
 
     // Handle successful payment
     if (event.type == "checkout.session.completed") {
