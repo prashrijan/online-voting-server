@@ -281,6 +281,7 @@ export const loginSuccess = async (req, res) => {
         }
 
         const clientUrl = conf.clientUrl;
+        // const clientUrl = clientUrlProduction;
 
         return res.redirect(
             `${clientUrl}/google-auth-success?accessToken=${encodeURIComponent(
