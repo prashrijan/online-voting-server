@@ -62,6 +62,10 @@ const userScehma = new Schema(
             type: Boolean,
             default: false,
         },
+        isPaid: {
+            type: Boolean,
+            default: false,
+        },
     },
     { timestamps: true }
 );
