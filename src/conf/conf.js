@@ -9,6 +9,7 @@ export const conf = {
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     sessionSecret: process.env.SESSION_SECRET,
     clientUrl: process.env.CLIENT_URL,
+    clientUrlProduction: process.env.CLIENT_URL_PRODUCTION,
     cloudinaryUrl: process.env.CLOUDINARY_URL,
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,

@@ -19,6 +19,7 @@ export const sendResetPasswordEmail = async (user) => {
     );
 
     const url = `${conf.clientUrl}/reset-password/${token}`;
+    // const url = `${clientUrlProduction}/reset-password/${token}`;
 
     const mailOptions = {
         from: `"Chunaab 🔐" <${conf.emailUser}>`,
