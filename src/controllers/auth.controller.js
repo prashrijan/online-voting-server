@@ -280,8 +280,8 @@ export const loginSuccess = async (req, res) => {
                 .json(new ApiError(500, "Failed to create session token."));
         }
 
-        const clientUrl = conf.clientUrl;
-        // const clientUrl = clientUrlProduction;
+        // const clientUrl = conf.clientUrl;
+        const clientUrl = clientUrlProduction;
 
         return res.redirect(
             `${clientUrl}/google-auth-success?accessToken=${encodeURIComponent(
