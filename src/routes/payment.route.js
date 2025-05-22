@@ -1,8 +1,5 @@
 import express from "express";
-import {
-    createCheckoutSession,
-    webHookRoute,
-} from "../controllers/payment.controller.js";
+import { createCheckoutSession } from "../controllers/payment.controller.js";
 import { authenticateuser } from "../middlewares/authenticateUser.js";
 
 const router = express.Router();
