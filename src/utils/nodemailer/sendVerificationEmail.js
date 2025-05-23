@@ -18,8 +18,7 @@ export const sendVerificationEmail = async (user) => {
         }
     );
 
-    // const url = `${conf.clientUrl}/verify-email?token=${token}`;
-    const url = `${conf.clientUrlProduction}/verify-email?token=${token}`;
+    const url = `${conf.clientUrl}/verify-email?token=${token}`;
 
     const mailOptions = {
         from: `"Chunaab 👋" <${conf.emailUser}>`,
