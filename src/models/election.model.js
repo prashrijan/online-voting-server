@@ -60,6 +60,11 @@ const electionSchema = new Schema(
             enum: ["public", "private"],
             default: "private",
         },
+        timezone: {
+            type: String,
+            required: true,
+            default: "UTC",
+        },
     },
     { timestamps: true }
 );
@@ -105,7 +110,11 @@ electionSchema.statics.updateElectionStatus = async function () {
     console.log(pendingElections);
 
     for (const election of pendingElections) {
-        const start = combineDateTime(election.startDate, election.startTime);
+        const start = combineDateTime(
+            election.startDate,
+            election.startTime,
+            election.timezone
+        );
         console.log(start);
         console.log(now);
 
@@ -119,7 +128,11 @@ electionSchema.statics.updateElectionStatus = async function () {
     const activeElections = await this.find({ status: "active" });
 
     for (const election of activeElections) {
-        const end = combineDateTime(election.endDate, election.endTime);
+        const end = combineDateTime(
+            election.endDate,
+            election.endTime,
+            election.timezone
+        );
         if (now >= end) {
             console.log("ending election");
             election.status = "finished";
