@@ -108,6 +108,7 @@ electionSchema.statics.updateElectionStatus = async function () {
         const start = combineDateTime(election.startDate, election.startTime);
 
         if (now >= start) {
+            console.log("Starting Election");
             election.status = "active";
             await election.save();
         }
@@ -118,6 +119,7 @@ electionSchema.statics.updateElectionStatus = async function () {
     for (const election of activeElections) {
         const end = combineDateTime(election.endDate, election.endTime);
         if (now >= end) {
+            console.log("ending election");
             election.status = "finished";
             await election.save();
         }
