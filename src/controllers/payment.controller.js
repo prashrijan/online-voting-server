@@ -23,10 +23,10 @@ export const createCheckoutSession = async (req, res, next) => {
                     quantity: 1,
                 },
             ],
-            // success_url: `${conf.clientUrl}/user/payment-success`,
-            success_url: `${conf.clientUrlProduction}/user/payment-success`,
-            // cancel_url: `${conf.clientUrl}/user`,
-            cancel_url: `${conf.clientUrlProduction}/user`,
+            success_url: `${conf.clientUrl}/user/payment-success`,
+
+            cancel_url: `${conf.clientUrl}/user`,
+
             metadata: {
                 userId: req.user?._id.toString(),
             },
