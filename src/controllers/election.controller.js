@@ -17,6 +17,7 @@ export const createElection = async (req, res, next) => {
             startTime,
             endTime,
             visibility = "private",
+            timezone,
         } = req.body;
 
         const userId = req.user._id;
@@ -27,7 +28,8 @@ export const createElection = async (req, res, next) => {
             !endDate ||
             !candidate ||
             !startTime ||
-            !endTime
+            !endTime ||
+            !timezone
         ) {
             return res
                 .status(400)
@@ -68,6 +70,7 @@ export const createElection = async (req, res, next) => {
             },
             chunaabCode: generateChunaabCode(),
             visibility,
+            timezone,
         });
         await election.save();
 
