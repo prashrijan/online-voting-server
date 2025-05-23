@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+
+// Load the correct env file based on NODE_ENV
+dotenv.config({ path: `.env.${process.env.NODE_ENV || "development"}` });
 import express from "express";
 import cors from "cors";
 import authRoutes from "./src/routes/auth.routes.js";
