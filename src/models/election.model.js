@@ -106,6 +106,8 @@ electionSchema.statics.updateElectionStatus = async function () {
 
     for (const election of pendingElections) {
         const start = combineDateTime(election.startDate, election.startTime);
+        console.log(start);
+        console.log(now);
 
         if (now >= start) {
             console.log("Starting Election");
