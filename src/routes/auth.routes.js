@@ -14,6 +14,7 @@ import {
     authenticateuser,
     refreshAuthenticate,
 } from "../middlewares/authenticateUser.js";
+import { conf } from "../conf/conf.js";
 
 const router = express.Router();
 
@@ -29,7 +30,8 @@ router
 // google callback route
 router.route("/google/callback").get(
     passport.authenticate("google", {
-        failureRedirect: "/",
+        failureRedirect: `${conf.clientUrl}/login?error=google-failed`,
+        session: false,
     }),
     loginSuccess
 );
