@@ -54,7 +54,7 @@ dbConnection()
 // rate limit
 const limiter = rateLimit({
     windowMs: 60 * 1000,
-    limit: 5,
+    limit: 10,
     message: "Too many requests from this IP. Please try again later",
 });
 
