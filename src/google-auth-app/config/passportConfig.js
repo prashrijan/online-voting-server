@@ -10,7 +10,10 @@ passport.use(
         {
             clientID: conf.googleClientId,
             clientSecret: conf.googleClientSecret,
-            callbackURL: "/api/v1/auth/google/callback",
+            callbackURL:
+                process.env.NODE_ENV === "production"
+                    ? "https://api.chunaab.com/api/v1/auth/google/callback"
+                    : "http://localhost:8000/api/v1/auth/google/callback",
         },
         googleAuthCallback
     )
