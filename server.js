@@ -58,14 +58,10 @@ const limiter = rateLimit({
     message: "Too many requests from this IP. Please try again later",
 });
 
-// app.use(limiter);
+app.use(limiter);
 
 // Start cron jobs
 startCronJobs();
-
-app.get("/", (req, res) => {
-    res.send("An Online Voting System");
-});
 
 // auth routes
 app.use("/api/v1/auth", authRoutes);
