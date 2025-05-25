@@ -51,15 +51,6 @@ dbConnection()
         console.log(`Database server connection failed: ${error}`)
     );
 
-// rate limit
-const limiter = rateLimit({
-    windowMs: 60 * 1000,
-    limit: 10,
-    message: "Too many requests from this IP. Please try again later",
-});
-
-app.use(limiter);
-
 // Start cron jobs
 startCronJobs();
 
