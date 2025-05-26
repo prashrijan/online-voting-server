@@ -11,7 +11,7 @@ import chatbotRoutes from "./src/routes/chatbot.route.js";
 import voteRoutes from "./src/routes/vote.route.js";
 import paymentRoutes from "./src/routes/payment.route.js";
 import { dbConnection } from "./src/db/dbConfig.js";
-import { rateLimit } from "express-rate-limit";
+
 import passport from "./src/google-auth-app/config/passportConfig.js";
 import session from "express-session";
 import { conf } from "./src/conf/conf.js";
@@ -21,7 +21,21 @@ import { webHookRoute } from "./src/controllers/payment.controller.js";
 const app = express();
 const PORT = process.env.PORT;
 
-app.use(cors());
+const allowedOrigins = [process.env.CLIENT_URL];
+
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            } else {
+                return callback(new Error("Not allowed by CORS"));
+            }
+        },
+        methods: ["GET", "PUT", "POST", "DELETE", "PATCH"],
+    })
+);
 
 app.use(
     "/api/v1/payment/webhook",
