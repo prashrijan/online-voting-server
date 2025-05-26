@@ -30,7 +30,7 @@ app.use(
             if (allowedOrigins.includes(origin)) {
                 return callback(null, true);
             } else {
-                return callback(new Error("Not allowed by CORS"));
+                return callback(new Error(`${origin}: not allowed by CORS`));
             }
         },
         methods: ["GET", "PUT", "POST", "DELETE", "PATCH"],
