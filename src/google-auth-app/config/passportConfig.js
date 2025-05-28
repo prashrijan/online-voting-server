@@ -10,7 +10,7 @@ passport.use(
         {
             clientID: conf.googleClientId,
             clientSecret: conf.googleClientSecret,
-            callbackURL: "/api/v1/auth/google/callback",
+            callbackURL: `${conf.apiEndPoint}/api/v1/auth/google/callback`,
         },
         googleAuthCallback
     )

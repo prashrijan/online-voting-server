@@ -19,4 +19,5 @@ export const conf = {
     geminiApiKey: process.env.GEMINI_API_KEY,
     stripePrivateKey: process.env.STRIPE_PRIVATE_KEY,
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+    apiEndPoint: process.env.API_ENDPOINT,
 };
