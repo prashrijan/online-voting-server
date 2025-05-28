@@ -30,7 +30,7 @@ router
 // google callback route
 router.route("/google/callback").get(
     passport.authenticate("google", {
-        failureRedirect: `${conf.clientUrl}/login`,
+        failureRedirect: `${conf.clientUrl}/login?error="google-failed`,
         session: false,
     }),
     loginSuccess
