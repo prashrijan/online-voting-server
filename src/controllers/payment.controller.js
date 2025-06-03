@@ -18,7 +18,7 @@ export const createCheckoutSession = async (req, res, next) => {
                         product_data: {
                             name: "Chunaab.com Premium - Unlimited Election",
                         },
-                        unit_amount: 500, //$5.00
+                        unit_amount: 100, //$1.00
                     },
                     quantity: 1,
                 },
