@@ -31,6 +31,7 @@ If the user asks unrelated or inappropriate questions, politely decline and brin
 import { GoogleGenAI } from "@google/genai";
 import { conf } from "../conf/conf.js";
 import { ApiResponse } from "../utils/customResponse/ApiResponse.js";
+import { ApiError } from "../utils/customResponse/ApiError.js";
 
 const ai = new GoogleGenAI({
     apiKey: conf.geminiApiKey,
@@ -41,7 +42,7 @@ export const chatbotController = async (req, res, next) => {
         const { message } = req.body;
 
         const result = await ai.models.generateContent({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.5-flash",
             contents: [
                 { role: "user", parts: [{ text: systemPrompt }] },
                 {
