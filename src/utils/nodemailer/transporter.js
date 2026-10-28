@@ -5,6 +5,7 @@ export const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
         user: conf.emailUser,
-        pass: conf.emailPass,
+        // Google displays app passwords in groups; whitespace is formatting only.
+        pass: conf.emailPass?.replace(/\s/g, ""),
     },
 });
